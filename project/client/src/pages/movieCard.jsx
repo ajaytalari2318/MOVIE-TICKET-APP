@@ -52,18 +52,19 @@ export default function MovieCard() {
                             <Card
                                 hoverable
                                 cover={
-                                    <img
-                                        alt={movie.title}
-                                        src={movie.posterURL}
-                                        style={{
-                                            width: "100%",
-                                            height: "auto",          
-                                            objectFit: "contain",   
-                                            borderTopLeftRadius: "1px",
-                                            borderTopRightRadius: "1px"
-
-                                        }}
-                                    />
+                                    <div style={{ width: "100%", height: "350px", overflow: "hidden" }}>
+                                        <img
+                                            alt={movie.title}
+                                            src={movie.posterURL}
+                                            style={{
+                                                width: "100%",
+                                                height: "100%",
+                                                objectFit: "cover",  
+                                                borderTopLeftRadius: "8px",
+                                                borderTopRightRadius: "8px"
+                                            }}
+                                        />
+                                    </div>
                                 }
                                 style={{ borderRadius: '8px', overflow: 'hidden' }}
                             >
@@ -84,6 +85,7 @@ export default function MovieCard() {
                                     Book Now
                                 </Button>
                             </Card>
+
                         </Col>
                     ))}
                 </Row>

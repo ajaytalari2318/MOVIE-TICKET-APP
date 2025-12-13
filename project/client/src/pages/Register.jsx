@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button, Checkbox, Input, message, Typography, Divider, Space } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined, GoogleOutlined, FacebookOutlined, AppleOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import { register } from '../calls/authCalls.js';
+
 
 const { Title, Text } = Typography;
 
@@ -208,7 +208,7 @@ const Register = () => {
           <Text type="secondary" style={{ fontSize: '14px' }}>Or sign up with</Text>
         </Divider>
 
-        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+        <Space orientation="vertical" style={{ width: '100%' }} size="middle">
           <Button
             block
             icon={<GoogleOutlined />}
