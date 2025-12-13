@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+// src/pages/Login.jsx
+import React, { useState, useEffect } from 'react';
 import { Button, Checkbox, Input, message, Typography, Divider, Space } from 'antd';
 import { UserOutlined, LockOutlined, GoogleOutlined, FacebookOutlined, AppleOutlined } from '@ant-design/icons';
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom';
+import { login } from '../calls/authCalls.js';
 
 const { Title, Text } = Typography;
 
@@ -11,6 +13,15 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(true);
   const navigate = useNavigate();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/home');
+    }
+  }, [navigate]);
+
   const handleSubmit = async () => {
     if (!email || !password) {
       message.warning("Please fill all required fields!");
@@ -29,18 +40,23 @@ const Login = () => {
 
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const userData = { success: true, message: "Login successful!" };
+      const response = await login({ email, password });
+      const userData = response.data;
 
       if (userData.success) {
         message.success(userData.message || "Login successful!");
-        navigate('/home'); // ✅ redirect to home page
+        
+        // Store token and user data
+        localStorage.setItem('token', userData.token);
+        localStorage.setItem('user', JSON.stringify(userData.user));
+        
+        // Redirect to home
+        setTimeout(() => {
+          navigate('/home');
+        }, 500);
       } else {
         message.error(userData.message || "Login failed!");
       }
-
-      console.log("Login values:", { email, password, remember });
     } catch (error) {
       console.error("Error:", error);
       message.error("Something went wrong. Please try again.");
@@ -48,7 +64,6 @@ const Login = () => {
       setLoading(false);
     }
   };
-
 
   const handleSocialLogin = (provider) => {
     message.info(`${provider} login coming soon!`);
@@ -129,9 +144,7 @@ const Login = () => {
             </Checkbox>
             <Button type="link" style={{ padding: 0, color: '#667eea' }}>
               Forgot password?
-
             </Button>
-
           </div>
 
           <Button
@@ -156,7 +169,7 @@ const Login = () => {
           <Text type="secondary" style={{ fontSize: '14px' }}>Or continue with</Text>
         </Divider>
 
-        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+        <Space orientation="vertical" style={{ width: '100%' }} size="middle">
           <Button
             block
             icon={<GoogleOutlined />}
@@ -204,9 +217,9 @@ const Login = () => {
         <div style={{ textAlign: 'center', marginTop: '24px' }}>
           <Text type="secondary">
             Don't have an account?{' '}
-            <Button type="link" style={{ padding: 0, color: '#667eea', fontWeight: '600' }}>
-              <Link to="/register"> Sign up</Link>
-            </Button>
+            <Link to="/register" style={{ color: '#667eea', fontWeight: '600' }}>
+              Sign up
+            </Link>
           </Text>
         </div>
       </div>

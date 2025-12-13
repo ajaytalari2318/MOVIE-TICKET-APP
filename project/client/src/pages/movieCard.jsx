@@ -28,7 +28,7 @@ export default function MovieCard() {
                 <div
                     style={{
                         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        padding: '1px',
+                        padding: '10px',
                         borderRadius: '12px',
                         marginBottom: '2px',
                         color: '#fff',

@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+// src/pages/Register.jsx
+import React, { useState, useEffect } from 'react';
 import { Button, Checkbox, Input, message, Typography, Divider, Space } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined, GoogleOutlined, FacebookOutlined, AppleOutlined } from '@ant-design/icons';
-import {Link} from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom';
+import { register } from '../calls/authCalls.js';
+
 const { Title, Text } = Typography;
 
 const Register = () => {
@@ -11,6 +14,15 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const navigate = useNavigate();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/home');
+    }
+  }, [navigate]);
 
   const handleSubmit = async () => {
     // Validation
@@ -46,26 +58,23 @@ const Register = () => {
 
     setLoading(true);
     try {
-      // Simulating API call - replace with your actual register function
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await register({ name, email, password });
       
-      // const response = await register({ name, email, password });
-      // if (response && response.data) {
-      //   const userData = response.data;
-      //   if (userData.success) {
-      //     message.success(userData.message || "Registration successful!");
-      //     navigate('/login');
-      //   } else {
-      //     message.error(userData.message || "Registration failed!");
-      //   }
-      // }
-
-      // Simulated response
-      message.success("Registration successful! Redirecting to login...");
-      console.log("Register values:", { name, email, password });
-      
-      // Uncomment to navigate after successful registration
-      // setTimeout(() => navigate('/login'), 1500);
+      if (response && response.data) {
+        const userData = response.data;
+        if (userData.success) {
+          message.success(userData.message || "Registration successful!");
+          
+          // Redirect to login after 1.5 seconds
+          setTimeout(() => {
+            navigate('/login');
+          }, 1500);
+        } else {
+          message.error(userData.message || "Registration failed!");
+        }
+      } else {
+        message.error("No response from server.");
+      }
     } catch (error) {
       console.error("Error:", error);
       message.error("Unexpected error. Please try again.");
@@ -80,16 +89,16 @@ const Register = () => {
 
   return (
     <div style={{
-      minHeight: '90vh',
+      minHeight: '100vh',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      padding: '50px'
+      padding: '20px'
     }}>
       <div style={{
         background: '#fff',
-        padding: '14px 14px',
+        padding: '48px 40px',
         borderRadius: '16px',
         boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
         width: '100%',
@@ -121,7 +130,7 @@ const Register = () => {
 
         <div style={{ marginBottom: '24px' }}>
           <div style={{ marginBottom: '16px' }}>
-            <Input 
+            <Input
               prefix={<UserOutlined style={{ color: '#999' }} />}
               placeholder="Full Name"
               value={name}
@@ -132,7 +141,7 @@ const Register = () => {
           </div>
 
           <div style={{ marginBottom: '16px' }}>
-            <Input 
+            <Input
               prefix={<MailOutlined style={{ color: '#999' }} />}
               placeholder="Email address"
               value={email}
@@ -143,7 +152,7 @@ const Register = () => {
           </div>
 
           <div style={{ marginBottom: '16px' }}>
-            <Input.Password 
+            <Input.Password
               prefix={<LockOutlined style={{ color: '#999' }} />}
               placeholder="Password"
               value={password}
@@ -154,7 +163,7 @@ const Register = () => {
           </div>
 
           <div style={{ marginBottom: '16px' }}>
-            <Input.Password 
+            <Input.Password
               prefix={<LockOutlined style={{ color: '#999' }} />}
               placeholder="Confirm Password"
               value={confirmPassword}
@@ -166,7 +175,7 @@ const Register = () => {
           </div>
 
           <div style={{ marginBottom: '24px' }}>
-            <Checkbox 
+            <Checkbox
               checked={agreeTerms}
               onChange={(e) => setAgreeTerms(e.target.checked)}
             >
@@ -177,12 +186,12 @@ const Register = () => {
             </Checkbox>
           </div>
 
-          <Button 
-            type="primary" 
+          <Button
+            type="primary"
             block
             loading={loading}
             onClick={handleSubmit}
-            style={{ 
+            style={{
               height: '48px',
               borderRadius: '8px',
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -200,11 +209,11 @@ const Register = () => {
         </Divider>
 
         <Space direction="vertical" style={{ width: '100%' }} size="middle">
-          <Button 
-            block 
+          <Button
+            block
             icon={<GoogleOutlined />}
             onClick={() => handleSocialRegister('Google')}
-            style={{ 
+            style={{
               height: '48px',
               borderRadius: '8px',
               display: 'flex',
@@ -215,12 +224,12 @@ const Register = () => {
           >
             Continue with Google
           </Button>
-          
+
           <div style={{ display: 'flex', gap: '12px' }}>
-            <Button 
+            <Button
               icon={<FacebookOutlined />}
               onClick={() => handleSocialRegister('Facebook')}
-              style={{ 
+              style={{
                 flex: 1,
                 height: '48px',
                 borderRadius: '8px',
@@ -229,10 +238,10 @@ const Register = () => {
                 justifyContent: 'center'
               }}
             />
-            <Button 
+            <Button
               icon={<AppleOutlined />}
               onClick={() => handleSocialRegister('Apple')}
-              style={{ 
+              style={{
                 flex: 1,
                 height: '48px',
                 borderRadius: '8px',
@@ -247,9 +256,9 @@ const Register = () => {
         <div style={{ textAlign: 'center', marginTop: '24px' }}>
           <Text type="secondary">
             Already have an account?{' '}
-            <Button type="link" style={{ padding: 0, color: '#667eea', fontWeight: '600' }}>
-                <Link to="/login">Login here</Link> 
-            </Button>
+            <Link to="/login" style={{ color: '#667eea', fontWeight: '600' }}>
+              Login here
+            </Link>
           </Text>
         </div>
       </div>
