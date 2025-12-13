@@ -1,48 +1,15 @@
-// src/App.jsx
-import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
-import './App.css';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Homepage from './pages/Homepage';
-import ProtectedRoute from './components/ProtectedRoute';
+import Profile from './pages/Profile';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Default route - redirect to home if logged in, otherwise to login */}
-        <Route 
-          path="/" 
-          element={
-            localStorage.getItem('token') ? 
-            <Navigate to="/home" replace /> : 
-            <Navigate to="/login" replace />
-          } 
-        />
-        
-        {/* Public routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        
-        {/* Protected routes */}
-        <Route 
-          path="/home" 
-          element={
-            <ProtectedRoute>
-              <Homepage />
-            </ProtectedRoute>
-          } 
-        />
-        
-        {/* Catch all - redirect to home or login */}
-        <Route 
-          path="*" 
-          element={
-            localStorage.getItem('token') ? 
-            <Navigate to="/home" replace /> : 
-            <Navigate to="/login" replace />
-          } 
-        />
+        <Route path="/home" element={<Homepage />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/" element={<Homepage />} /> {/* default route */}
       </Routes>
     </BrowserRouter>
   );

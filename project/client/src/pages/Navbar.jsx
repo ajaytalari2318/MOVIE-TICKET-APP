@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Layout, Input, Button, Avatar, Dropdown, Space, Typography, Badge, message } from 'antd';
 import { SearchOutlined, UserOutlined, LogoutOutlined, EnvironmentOutlined, BellOutlined, SettingOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import Profile from './Profile';
 
 const { Header } = Layout;
 const { Title, Text } = Typography;
@@ -39,7 +40,7 @@ export default function Navbar() {
             icon: <UserOutlined />,
             label: 'My Profile',
             onClick: () => {
-                message.info('Profile page coming soon!');
+                navigate('/profile');  // ✅ lowercase route
             }
         },
         {
@@ -61,6 +62,7 @@ export default function Navbar() {
             onClick: handleLogout
         },
     ];
+
     const getInitial = (name) => {
         return name ? name.charAt(0).toUpperCase() : 'U';
     };
