@@ -1,11 +1,13 @@
+// server/routes/movie.route.js - Updated Version
 const express = require('express')
 const movie = require('../models/movie.model.js')
 
 const movieRouter = express.Router();
 
+// Add multiple movies
 movieRouter.post('/add-movies', async (req, res) => {
   try {
-    const newMovies = await movie.insertMany(req.body); // req.body must be an array
+    const newMovies = await movie.insertMany(req.body);
     res.status(201).json({
       success: true,
       message: 'Movies added successfully!',
@@ -19,42 +21,42 @@ movieRouter.post('/add-movies', async (req, res) => {
   }
 });
 
-
+// Update movie by ID
 movieRouter.put('/update/:id', async (req, res) => {
-    try {
-        const { id } = req.params; // movie id from URL
-        const updateData = req.body; // fields to update
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
 
-        const updatedMovie = await movie.findByIdAndUpdate(
-            id,
-            updateData,
-            { new: true, runValidators: true } // return updated doc & validate schema
-        );
+    const updatedMovie = await movie.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    );
 
-        if (!updatedMovie) {
-            return res.status(404).json({
-                success: false,
-                message: 'Movie not found',
-            });
-        }
-
-        res.json({
-            success: true,
-            message: 'Details updated successfully!',
-            movie: updatedMovie,
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message,
-        });
+    if (!updatedMovie) {
+      return res.status(404).json({
+        success: false,
+        message: 'Movie not found',
+      });
     }
+
+    res.json({
+      success: true,
+      message: 'Movie updated successfully!',
+      movie: updatedMovie,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 });
 
-
+// Get all movies
 movieRouter.get('/allMovies', async (req, res) => {
   try {
-    const allMovies = await movie.find();
+    const allMovies = await movie.find().sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
@@ -69,7 +71,7 @@ movieRouter.get('/allMovies', async (req, res) => {
   }
 });
 
-
+// Get movie by ID
 movieRouter.get('/movieById/:id', async (req, res) => {
   const { id } = req.params;
   try {
@@ -95,7 +97,8 @@ movieRouter.get('/movieById/:id', async (req, res) => {
   }
 });
 
-movieRouter.delete('/deleteMovie/:id', async (req, res) => {
+// Delete movie by ID (FIXED ROUTE)
+movieRouter.delete('/delete/:id', async (req, res) => {
   const { id } = req.params;
   try {
     const deletedMovie = await movie.findByIdAndDelete(id);
@@ -119,8 +122,5 @@ movieRouter.delete('/deleteMovie/:id', async (req, res) => {
     });
   }
 });
-
-
-
 
 module.exports = movieRouter;
