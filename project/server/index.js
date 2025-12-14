@@ -11,11 +11,12 @@ const userRoutes=require('./routes/user.route.js')
 const movieRoutes=require('./routes/movie.route.js')
 app.use(express.json());
 
-app.use(cors({ 
-          
-    origin:"http://localhost:5173" 
+app.use(cors({
+  origin: ["http://localhost:5173", "https://bookingmyshows.netlify.app"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 
-})) 
 
 app.use('/api/auth',userRoutes)
 app.use('/api/movie',movieRoutes)

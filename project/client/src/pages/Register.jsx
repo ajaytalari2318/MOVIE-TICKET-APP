@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button, Checkbox, Input, message, Typography, Divider, Space } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined, GoogleOutlined, FacebookOutlined, AppleOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
+import {register}from '../calls/authCalls'
 
 
 const { Title, Text } = Typography;
