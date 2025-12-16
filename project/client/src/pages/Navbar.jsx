@@ -11,7 +11,7 @@ import {
   MenuOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import UserProfile from './userProfile';
+import UserProfile from './userProfile'; 
 
 
 const { Header } = Layout;
@@ -56,7 +56,14 @@ export default function Navbar() {
       icon: <UserOutlined />,
       label: 'My Profile',
       onClick: () => {
-        navigate('/profile');
+        if(user.role=="admin")
+        {
+        navigate('/profile')
+        }
+        else
+        {
+          navigate('/user')
+        }
         setDrawerVisible(false);
       }
     },
@@ -282,10 +289,8 @@ export default function Navbar() {
               icon={<UserOutlined />}
               style={{ textAlign: 'left', height: '48px' }}
               onClick={() => {
-                if (user && user.role === 'admin') {
-                  navigate('/profile');
-                } else {
-                  navigate('/user'); 
+                if (user.role == 'user') {
+                  navigate('/user');
                 }
                 setDrawerVisible(false);
               }}
