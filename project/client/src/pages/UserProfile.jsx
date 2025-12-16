@@ -33,11 +33,12 @@ function UserProfile() {
   // Mock booking data - replace with actual API call
   const [bookings] = useState([
    
+     
   ]);
 
   // Mock favorites - replace with actual API call
   const [favorites] = useState([
-
+    
   ]);
 
   useEffect(() => {
@@ -153,7 +154,7 @@ function UserProfile() {
                 <StarOutlined /> Member since 2024
               </Tag>
               <Tag color="blue" style={{ fontSize: '14px', padding: '4px 12px' }}>
-               {bookings.length} Bookings
+                {bookings.length} Bookings
               </Tag>
             </Space>
           </Space>

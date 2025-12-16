@@ -1,6 +1,6 @@
 // src/pages/Profile.jsx - Enhanced Responsive Version
 import React, { useState, useEffect } from 'react';
-import { Layout, Table, Image, Button, Modal, Form, Input, DatePicker, message, Tabs, Space, Card } from 'antd';
+import { Layout, Table, Image, Button, Modal, Form, Input, DatePicker, message, Tabs, Space, Card, Spin, Empty } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { getAllMovies, addMovies, updateMovie, deleteMovie } from '../calls/movieCalls.js';
 import Navbar from './Navbar';
@@ -15,28 +15,31 @@ const Profile = () => {
   const [form] = Form.useForm();
   const [editingMovie, setEditingMovie] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchMovies();
-    
+
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const fetchMovies = async () => {
     try {
+      setLoading(true);
       const response = await getAllMovies();
       setMovies(response.movies || []);
     } catch (error) {
       message.error('Failed to fetch movies.');
     } finally {
       setConfirmLoading(false);
+      setLoading(false);
     }
   };
 
@@ -68,61 +71,61 @@ const Profile = () => {
   };
 
   const movieColumns = [
-    { 
-      title: 'Poster', 
-      dataIndex: 'posterURL', 
+    {
+      title: 'Poster',
+      dataIndex: 'posterURL',
       key: 'poster',
       width: isMobile ? 80 : 100,
       render: (poster) => (
-        <Image 
-          src={poster} 
-          width={isMobile ? 60 : 70} 
-          height={isMobile ? 90 : 100} 
-          style={{ objectFit: 'cover', borderRadius: '6px' }} 
+        <Image
+          src={poster}
+          width={isMobile ? 60 : 70}
+          height={isMobile ? 90 : 100}
+          style={{ objectFit: 'cover', borderRadius: '6px' }}
         />
-      ) 
+      )
     },
-    { 
-      title: 'Title', 
-      dataIndex: 'title', 
+    {
+      title: 'Title',
+      dataIndex: 'title',
       key: 'title',
       responsive: ['sm']
     },
-    { 
-      title: 'Genre', 
-      dataIndex: 'genre', 
+    {
+      title: 'Genre',
+      dataIndex: 'genre',
       key: 'genre',
       responsive: ['md']
     },
-    { 
-      title: 'Language', 
-      dataIndex: 'language', 
+    {
+      title: 'Language',
+      dataIndex: 'language',
       key: 'language',
       responsive: ['md']
     },
-    { 
-      title: 'Rating', 
-      dataIndex: 'rating', 
+    {
+      title: 'Rating',
+      dataIndex: 'rating',
       key: 'rating',
       responsive: ['lg']
     },
-    { 
-      title: 'Action', 
+    {
+      title: 'Action',
       key: 'action',
       width: isMobile ? 80 : 150,
       render: (_, record) => (
         <Space size="small" direction={isMobile ? 'vertical' : 'horizontal'}>
-          <Button 
-            type="link" 
+          <Button
+            type="link"
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
             size={isMobile ? 'small' : 'middle'}
           >
             {!isMobile && 'Edit'}
           </Button>
-          <Button 
-            type="link" 
-            danger 
+          <Button
+            type="link"
+            danger
             icon={<DeleteOutlined />}
             onClick={() => handleDelete(record._id)}
             size={isMobile ? 'small' : 'middle'}
@@ -130,7 +133,7 @@ const Profile = () => {
             {!isMobile && 'Delete'}
           </Button>
         </Space>
-      ) 
+      )
     },
   ];
 
@@ -169,8 +172,8 @@ const Profile = () => {
   return (
     <Layout style={{ minHeight: '100vh', background: '#f5f5f5' }}>
       <Navbar />
-      <Content style={{ 
-        marginTop: 64, 
+      <Content style={{
+        marginTop: 64,
         padding: isMobile ? '16px' : '24px',
         maxWidth: '1400px',
         margin: '64px auto 0',
@@ -179,18 +182,18 @@ const Profile = () => {
         <Card style={{ borderRadius: '12px' }}>
           <Tabs defaultActiveKey="movies">
             <Tabs.TabPane tab="Movies" key="movies">
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'flex-end', 
-                marginBottom: '16px' 
+              <div style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                marginBottom: '16px'
               }}>
-                <Button 
-                  type="primary" 
+                <Button
+                  type="primary"
                   icon={<PlusOutlined />}
-                  onClick={() => { 
-                    setEditingMovie(null); 
-                    form.resetFields(); 
-                    setOpen(true); 
+                  onClick={() => {
+                    setEditingMovie(null);
+                    form.resetFields();
+                    setOpen(true);
                   }}
                   style={{
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -202,16 +205,27 @@ const Profile = () => {
                 </Button>
               </div>
 
-              <Table 
-                columns={movieColumns} 
-                dataSource={movies} 
-                rowKey="_id"
-                scroll={{ x: true }}
-                pagination={{
-                  pageSize: isMobile ? 5 : 10,
-                  showSizeChanger: !isMobile
-                }}
-              />
+              {loading ? (
+                <div style={{ textAlign: 'center', padding: '60px 0' }}>
+                  <Spin size="large" />
+                </div>
+              ) : movies.length === 0 ? (
+                <Empty
+                  description="No movies found"
+                  style={{ padding: '60px 0' }}
+                />
+              ) : (
+                <Table
+                  columns={movieColumns}
+                  dataSource={movies}
+                  rowKey="_id"
+                  scroll={{ x: true }}
+                  pagination={{
+                    pageSize: isMobile ? 5 : 10,
+                    showSizeChanger: !isMobile
+                  }}
+                />
+              )}
 
               <Modal
                 title={editingMovie ? "Edit Movie" : "Add New Movie"}
@@ -221,63 +235,64 @@ const Profile = () => {
                 footer={null}
                 width={isMobile ? '95%' : 800}
               >
-                <Form 
-                  form={form} 
-                  layout="vertical" 
+                <Form
+                  form={form}
+                  layout="vertical"
                   onFinish={onFinish}
                   style={{ maxHeight: isMobile ? '70vh' : '450px', overflowY: 'auto', padding: '10px' }}
                 >
-                  <Form.Item 
-                    name="posterURL" 
-                    label="Poster URL" 
+                  <Form.Item
+                    name="posterURL"
+                    label="Poster URL"
                     rules={[{ required: true, message: 'Please enter poster URL' }]}
                   >
                     <Input placeholder="https://example.com/poster.jpg" />
                   </Form.Item>
-                  
-                  <Form.Item 
-                    name="title" 
-                    label="Title" 
+
+                  <Form.Item
+                    name="title"
+                    label="Title"
                     rules={[{ required: true, message: 'Please enter title' }]}
                   >
                     <Input placeholder="Movie Title" />
                   </Form.Item>
-                  
-                  <Form.Item 
-                    name="genre" 
-                    label="Genre" 
+
+                  <Form.Item
+                    name="genre"
+                    label="Genre"
                     rules={[{ required: true, message: 'Please enter genre' }]}
                   >
                     <Input placeholder="Action, Drama, Comedy..." />
                   </Form.Item>
-                  
-                  <Form.Item 
-                    name="language" 
-                    label="Language" 
+
+                  <Form.Item
+                    name="language"
+                    label="Language"
                     rules={[{ required: true, message: 'Please enter language' }]}
                   >
                     <Input placeholder="English, Hindi, Tamil..." />
                   </Form.Item>
-                  
+
                   <Form.Item name="description" label="Description">
                     <Input.TextArea rows={4} placeholder="Movie description..." />
                   </Form.Item>
-                  
-                  <Form.Item 
-                    name="releaseDate" 
-                    label="Release Date" 
+
+                  <Form.Item
+                    name="releaseDate"
+                    label="Release Date"
                     rules={[{ required: true, message: 'Please select release date' }]}
                   >
                     <DatePicker style={{ width: '100%' }} />
                   </Form.Item>
-                  
+
                   <Form.Item name="rating" label="Rating (0-10)">
                     <Input type="number" min={0} max={10} step={0.1} placeholder="7.5" />
                   </Form.Item>
-                  
+
                   <Form.Item>
                     <Space>
-                      <Button type="primary" htmlType="submit" loading={confirmLoading}>
+                      <Button type="primary" htmlType="
+submit" loading={confirmLoading}>
                         {editingMovie ? "Update" : "Save"}
                       </Button>
                       <Button onClick={() => { setOpen(false); setEditingMovie(null); }}>

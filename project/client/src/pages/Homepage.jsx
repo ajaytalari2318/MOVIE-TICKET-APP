@@ -1,8 +1,8 @@
-// src/pages/Homepage.jsx - Enhanced Version
+// src/pages/Homepage.jsx - Updated with Guest Experience
 import React, { useState, useEffect } from 'react';
-import { Layout, Button, Typography, Row, Col, Card, Space, Input, Select, Spin, Empty } from 'antd';
-import { Link, useNavigate } from 'react-router-dom';
-import { SearchOutlined, FilterOutlined } from '@ant-design/icons';
+import { Layout, Button, Typography, Row, Col, Card, Space, Input, Select, Spin, Empty, Modal } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { SearchOutlined, FilterOutlined, HeartOutlined, HeartFilled } from '@ant-design/icons';
 import Navbar from './Navbar';
 import { getAllMovies } from '../calls/movieCalls';
 
@@ -13,18 +13,19 @@ const { Option } = Select;
 function Homepage() {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
+  const isGuest = !token;
+  
   const [movies, setMovies] = useState([]);
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('all');
   const [selectedLanguage, setSelectedLanguage] = useState('all');
+  const [favorites, setFavorites] = useState([]);
 
   useEffect(() => {
-    if (token) {
-      fetchMovies();
-    }
-  }, [token]);
+    fetchMovies();
+  }, []);
 
   useEffect(() => {
     filterMovies();
@@ -63,72 +64,60 @@ function Homepage() {
     setFilteredMovies(filtered);
   };
 
+  const showSignInPrompt = (action = 'access this feature') => {
+    Modal.confirm({
+      title: 'Sign In Required',
+      content: (
+        <div style={{ padding: '20px 0' }}>
+          <Text style={{ fontSize: '16px', display: 'block', marginBottom: '16px' }}>
+            Please sign in or register to {action} and enjoy a personalized experience!
+          </Text>
+          <Space direction="vertical" style={{ width: '100%' }}>
+            <Text type="secondary">🎬 Book movie tickets</Text>
+            <Text type="secondary">❤️ Save your favorite movies</Text>
+            <Text type="secondary">🎫 View booking history</Text>
+            <Text type="secondary">⭐ Get personalized recommendations</Text>
+          </Space>
+        </div>
+      ),
+      icon: null,
+      okText: 'Sign In',
+      cancelText: 'Register',
+      onOk: () => navigate('/login'),
+      onCancel: () => navigate('/register'),
+      width: 500,
+      centered: true,
+    });
+  };
+
+  const handleBookNow = (movieId) => {
+    if (isGuest) {
+      showSignInPrompt('book tickets');
+    } else {
+      navigate(`/movie/${movieId}`);
+    }
+  };
+
+  const handleFavorite = (movieId) => {
+    if (isGuest) {
+      showSignInPrompt('add to favorites');
+      return;
+    }
+    
+    setFavorites(prev => {
+      if (prev.includes(movieId)) {
+        return prev.filter(id => id !== movieId);
+      }
+      return [...prev, movieId];
+    });
+  };
+
+  const handleMovieClick = (movieId) => {
+    navigate(`/movie/${movieId}`);
+  };
+
   const genres = [...new Set(movies.map(m => m.genre))];
   const languages = [...new Set(movies.map(m => m.language))];
-
-  if (!token) {
-    return (
-      <Layout style={{ minHeight: '100vh' }}>
-        <Navbar />
-        <Content style={{ 
-          marginTop: 64, 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          padding: '20px'
-        }}>
-          <div style={{
-            maxWidth: '600px',
-            width: '100%',
-            textAlign: 'center',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            borderRadius: '16px',
-            padding: '60px 40px',
-            color: '#fff',
-            boxShadow: '0 10px 40px rgba(0,0,0,0.2)'
-          }}>
-            <Title level={1} style={{ color: '#fff', fontSize: 'clamp(24px, 5vw, 36px)' }}>
-              Welcome to BookMyShow 🎬
-            </Title>
-            <Text style={{ fontSize: 'clamp(14px, 3vw, 18px)', color: '#fff', display: 'block', marginBottom: '30px' }}>
-              Login or Register to book tickets and get the best experience
-            </Text>
-            <Space size="large" wrap style={{ justifyContent: 'center' }}>
-              <Button
-                type="primary"
-                size="large"
-                onClick={() => navigate('/login')}
-                style={{
-                  background: '#f84464',
-                  borderColor: '#f84464',
-                  height: '50px',
-                  minWidth: '140px',
-                  fontSize: '16px',
-                  fontWeight: '600'
-                }}
-              >
-                Login
-              </Button>
-              <Button
-                size="large"
-                onClick={() => navigate('/register')}
-                style={{
-                  background: '#fff',
-                  color: '#667eea',
-                  height: '50px',
-                  minWidth: '140px',
-                  fontSize: '16px',
-                  fontWeight: '600'
-                }}
-              >
-                Register
-              </Button>
-            </Space>
-          </div>
-        </Content>
-      </Layout>
-    );
-  }
 
   return (
     <Layout style={{ minHeight: '100vh', background: '#f5f5f5' }}>
@@ -149,12 +138,65 @@ function Homepage() {
           color: '#fff'
         }}>
           <Title level={2} style={{ color: '#fff', margin: 0, fontSize: 'clamp(20px, 4vw, 32px)' }}>
-            Discover Amazing Movies 🍿
+            {isGuest ? 'Welcome to BookMyShow! 🎬' : 'Discover Amazing Movies 🍿'}
           </Title>
           <Text style={{ fontSize: 'clamp(14px, 2vw, 16px)', color: '#fff' }}>
-            Book tickets for the latest blockbusters and upcoming releases
+            {isGuest 
+              ? 'Browse movies and sign in to book tickets for the latest blockbusters' 
+              : 'Book tickets for the latest blockbusters and upcoming releases'
+            }
           </Text>
         </div>
+
+        {/* Guest Banner */}
+        {isGuest && (
+          <Card 
+            style={{ 
+              marginBottom: '30px', 
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #fff5e6 0%, #ffe0b3 100%)',
+              border: '2px solid #ffa940'
+            }}
+          >
+            <Row gutter={[16, 16]} align="middle">
+              <Col xs={24} md={18}>
+                <Space direction="vertical">
+                  <Title level={4} style={{ margin: 0, color: '#d46b08' }}>
+                    🎉 Sign in for exclusive benefits!
+                  </Title>
+                  <Text style={{ fontSize: '15px' }}>
+                    Create an account to book tickets, save favorites, and get personalized recommendations
+                  </Text>
+                </Space>
+              </Col>
+              <Col xs={24} md={6} style={{ textAlign: 'right' }}>
+                <Space>
+                  <Button 
+                    type="primary"
+                    size="large"
+                    onClick={() => navigate('/login')}
+                    style={{
+                      background: '#f84464',
+                      borderColor: '#f84464',
+                      fontWeight: '600'
+                    }}
+                  >
+                    Sign In
+                  </Button>
+                  <Button 
+                    size="large"
+                    onClick={() => navigate('/register')}
+                    style={{
+                      fontWeight: '600'
+                    }}
+                  >
+                    Register
+                  </Button>
+                </Space>
+              </Col>
+            </Row>
+          </Card>
+        )}
 
         {/* Search & Filter Section */}
         <Card style={{ marginBottom: '30px', borderRadius: '12px' }}>
@@ -221,12 +263,17 @@ function Homepage() {
                   <Card
                     hoverable
                     cover={
-                      <div style={{ 
-                        width: '100%', 
-                        height: 'clamp(200px, 30vw, 350px)', 
-                        overflow: 'hidden',
-                        background: '#f0f0f0'
-                      }}>
+                      <div 
+                        style={{ 
+                          width: '100%', 
+                          height: 'clamp(200px, 30vw, 350px)', 
+                          overflow: 'hidden',
+                          background: '#f0f0f0',
+                          position: 'relative',
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => handleMovieClick(movie._id)}
+                      >
                         <img
                           alt={movie.title}
                           src={movie.posterURL}
@@ -239,6 +286,30 @@ function Homepage() {
                             e.target.src = 'https://via.placeholder.com/300x450?text=No+Image';
                           }}
                         />
+                        {/* Favorite Button */}
+                        <Button
+                          type="text"
+                          icon={favorites.includes(movie._id) ? <HeartFilled /> : <HeartOutlined />}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleFavorite(movie._id);
+                          }}
+                          style={{
+                            position: 'absolute',
+                            top: '8px',
+                            right: '8px',
+                            background: 'rgba(255,255,255,0.9)',
+                            color: favorites.includes(movie._id) ? '#f84464' : '#666',
+                            borderRadius: '50%',
+                            width: '36px',
+                            height: '36px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '18px',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                          }}
+                        />
                       </div>
                     }
                     style={{ 
@@ -249,7 +320,6 @@ function Homepage() {
                       flexDirection: 'column'
                     }}
                     bodyStyle={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column' }}
-                    onClick={() => navigate(`/movie/${movie._id}`)}
                   >
                     <div style={{ flex: 1 }}>
                       <Title 
@@ -259,8 +329,10 @@ function Homepage() {
                           fontSize: 'clamp(12px, 2vw, 16px)',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap'
+                          whiteSpace: 'nowrap',
+                          cursor: 'pointer'
                         }}
+                        onClick={() => handleMovieClick(movie._id)}
                       >
                         {movie.title}
                       </Title>
@@ -276,15 +348,17 @@ function Homepage() {
                     <Button
                       type="primary"
                       block
+                      onClick={() => handleBookNow(movie._id)}
                       style={{ 
                         marginTop: '12px',
-                        background: '#f84464',
-                        borderColor: '#f84464',
+                        background: isGuest ? '#ffa940' : '#f84464',
+                        borderColor: isGuest ? '#ffa940' : '#f84464',
                         height: 'clamp(32px, 5vw, 40px)',
-                        fontSize: 'clamp(12px, 2vw, 14px)'
+                        fontSize: 'clamp(12px, 2vw, 14px)',
+                        fontWeight: '600'
                       }}
                     >
-                      Book Now
+                      {isGuest ? 'Sign In to Book' : 'Book Now'}
                     </Button>
                   </Card>
                 </Col>
