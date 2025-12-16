@@ -1,4 +1,3 @@
-// src/App.jsx - Enhanced Version
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Homepage from './pages/Homepage';
@@ -7,6 +6,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import MovieDetails from './pages/MovieDetails';
 import ProtectedRoute from './components/ProtectedRoute';
+import UserProfile from './pages/userProfile'; 
 
 function App() {
   return (
@@ -15,11 +15,12 @@ function App() {
         {/* Public Routes */}
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/user" element={<UserProfile />} /> 
         
-        {/* Homepage - accessible to all but shows different content */}
+        {/* Homepage */}
         <Route path="/home" element={<Homepage />} />
         <Route path="/" element={<Navigate to="/home" replace />} />
-        
+
         {/* Protected Routes */}
         <Route 
           path="/profile" 

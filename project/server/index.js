@@ -9,12 +9,12 @@ dbConfig.connectDB()
 
 const userRoutes=require('./routes/user.route.js')
 const movieRoutes=require('./routes/movie.route.js')
-app.use(express.json());
+app.use(express.json()); //Middleware
 
 app.use(cors({
   origin: ["http://localhost:5173", "https://bookingmyshows.netlify.app"],
   methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
+  credentials: true 
 }));
 
 

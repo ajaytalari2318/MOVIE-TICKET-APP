@@ -8,11 +8,9 @@ const JWT=require('jsonwebtoken')
 userRouter.post('/register', async (req, res) => {
   try {
     const userExists = await User.findOne({ email: req.body.email });
-    if (userExists) {
-      return res.send({
+    if (userExists) {return res.send({
         success: false,
-        message: 'User already exists with this email',
-      });}
+        message: 'User already exists with this email',});}
 
     const salt = await bcrypt.genSalt(10);
     const hashPwd = await bcrypt.hash(req.body.password, salt);

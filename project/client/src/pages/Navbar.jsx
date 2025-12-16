@@ -1,16 +1,18 @@
 // src/pages/Navbar.jsx - Enhanced Responsive Version
 import React, { useState, useEffect } from 'react';
 import { Layout, Input, Button, Avatar, Dropdown, Space, Typography, Badge, message, Drawer } from 'antd';
-import { 
-  SearchOutlined, 
-  UserOutlined, 
-  LogoutOutlined, 
-  EnvironmentOutlined, 
-  BellOutlined, 
+import {
+  SearchOutlined,
+  UserOutlined,
+  LogoutOutlined,
+  EnvironmentOutlined,
+  BellOutlined,
   SettingOutlined,
-  MenuOutlined 
+  MenuOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import UserProfile from './userProfile';
+
 
 const { Header } = Layout;
 const { Title, Text } = Typography;
@@ -32,10 +34,10 @@ export default function Navbar() {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
@@ -100,15 +102,15 @@ export default function Navbar() {
         }}
       >
         {/* Logo */}
-        <Title 
-          level={3} 
-          style={{ 
-            margin: 0, 
-            color: '#fff', 
-            fontWeight: 'bold', 
+        <Title
+          level={3}
+          style={{
+            margin: 0,
+            color: '#fff',
+            fontWeight: 'bold',
             cursor: 'pointer',
             fontSize: isMobile ? '18px' : '24px'
-          }} 
+          }}
           onClick={() => navigate('/home')}
         >
           BookMyShow
@@ -209,10 +211,10 @@ export default function Navbar() {
         open={drawerVisible}
         width={280}
       >
-        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+        <Space orientation="vertical" size="large" style={{ width: '100%' }}>
           {/* User Info */}
-          <div style={{ 
-            textAlign: 'center', 
+          <div style={{
+            textAlign: 'center',
             padding: '20px',
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             borderRadius: '12px',
@@ -250,7 +252,7 @@ export default function Navbar() {
           />
 
           {/* Menu Items */}
-          <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+          <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
             <Button
               block
               size="large"
@@ -259,7 +261,7 @@ export default function Navbar() {
             >
               Bengaluru
             </Button>
-            
+
             <Button
               block
               size="large"
@@ -280,12 +282,18 @@ export default function Navbar() {
               icon={<UserOutlined />}
               style={{ textAlign: 'left', height: '48px' }}
               onClick={() => {
-                navigate('/profile');
+                if (user && user.role === 'admin') {
+                  navigate('/profile');
+                } else {
+                  navigate('/user'); 
+                }
                 setDrawerVisible(false);
               }}
             >
               My Profile
             </Button>
+
+
 
             <Button
               block
