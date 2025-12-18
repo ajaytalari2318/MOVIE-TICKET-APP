@@ -102,14 +102,15 @@ export default function Navbar() {
         style={{
           position: 'fixed',
           zIndex: 1000,
-          width: '100%',
+          width: '99%',
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           padding: isMobile ? '0 16px' : '0 24px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-          height: '64px'
+          height: '64px',
+          borderRadius:'10px'
         }}
       >
         {/* Logo */}
