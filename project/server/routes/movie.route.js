@@ -54,9 +54,10 @@ movieRouter.put('/update/:id', async (req, res) => {
 });
 
 // Get all movies
+// Get all movies
 movieRouter.get('/allMovies', async (req, res) => {
   try {
-    const allMovies = await movie.find().sort({ createdAt: -1 });
+    const allMovies = await movie.find().sort({ createdAt: -1 }); // newest first
 
     res.status(200).json({
       success: true,
@@ -70,6 +71,7 @@ movieRouter.get('/allMovies', async (req, res) => {
     });
   }
 });
+
 
 // Get movie by ID
 movieRouter.get('/movieById/:id', async (req, res) => {

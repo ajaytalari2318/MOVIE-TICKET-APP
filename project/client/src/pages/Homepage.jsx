@@ -325,7 +325,7 @@ function Homepage() {
                       <Title 
                         level={5} 
                         style={{ 
-                          margin: '0 0 8px 0',
+                          margin: '0 0 8px 0',  
                           fontSize: 'clamp(12px, 2vw, 16px)',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
