@@ -7,7 +7,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import MovieDetails from './pages/MovieDetails';
 import ProtectedRoute from './components/ProtectedRoute';
-import UserProfile from './pages/userProfile';
+import UserProfile from './pages/UserProfile';
+
 
 function App() {
   return (
