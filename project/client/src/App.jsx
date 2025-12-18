@@ -8,6 +8,7 @@ import Register from './pages/Register';
 import MovieDetails from './pages/MovieDetails';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserProfile from './pages/UserProfile';
+import Partner from './pages/Partner';
 
 
 function App() {
@@ -34,6 +35,16 @@ function App() {
             </ProtectedRoute>
           } 
         />
+
+       <Route 
+          path="/partner-profile" 
+          element={
+            <ProtectedRoute>
+              <Partner />
+            </ProtectedRoute>
+          } 
+          />
+
         <Route 
           path="/profile" 
           element={

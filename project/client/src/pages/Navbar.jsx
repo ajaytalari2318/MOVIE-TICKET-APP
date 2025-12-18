@@ -65,8 +65,11 @@ export default function Navbar() {
       onClick: () => {
         if (user.role === "admin") {
           navigate('/profile');
-        } else {
+        } else if (user.role === "user") {
           navigate('/user-profile');
+        }
+        else{
+          navigate('/partner-profile');
         }
         setDrawerVisible(false);
       }
