@@ -14,7 +14,7 @@ import {
 } from '@ant-design/icons';
 import Navbar from './Navbar';
 import { useNavigate } from 'react-router-dom';
-import { getTheatresByOwner } from '../calls/theatreCalls';
+import { getAllTheatres } from '../calls/theatreCalls';
 import dayjs from 'dayjs';
 
 const { Content } = Layout;
@@ -48,13 +48,13 @@ function PartnerProfile() {
       { id: 'BK1236', movie: 'Tiger 3', date: '2024-12-19', amount: 1500, seats: 5 },
     ],
   });
-
+console.log(userData)
   useEffect(() => {
     const userData = localStorage.getItem('user');
     if (userData) {
       const parsedUser = JSON.parse(userData);
       setUser(parsedUser);
-      fetchTheatres(parsedUser._id);
+      fetchTheatres(parsedUser.email);
     } else {
       navigate('/login');
     }
@@ -67,17 +67,26 @@ function PartnerProfile() {
     return () => window.removeEventListener('resize', checkMobile);
   }, [navigate]);
 
-  const fetchTheatres = async (userId) => {
-    try {
-      setLoading(true);
-      const response = await getTheatresByOwner(userId);
-      setTheatres(response.theatres || []);
-    } catch (error) {
-      message.error('Failed to fetch theatres');
-    } finally {
-      setLoading(false);
-    }
-  };
+ const fetchTheatres = async (userEmail) => {
+  try {
+    setLoading(true);
+    const response = await getAllTheatres();
+    console.log('Raw theatres response:', response); // ✅ log full API response
+
+    const userTheatres = (response.theatres || []).filter(
+      theatre => theatre.contact?.email === userEmail
+    );
+    console.log('Filtered theatres for user:', userEmail, userTheatres); // ✅ log filtered list
+
+    setTheatres(userTheatres);
+  } catch (error) {
+    message.error('Failed to fetch theatres');
+    console.error('Error fetching theatres:', error); // ✅ log error
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleEditProfile = () => {
     form.setFieldsValue({

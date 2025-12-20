@@ -17,8 +17,8 @@ export const getAllTheatres = async () => {
 };
 
 // Get theatres by owner (partner)
-export const getTheatresByOwner = async (ownerId) => {
-  const response = await api.get(`/api/theatre/getTheatresByOwner/${ownerId}`);
+export const getTheatresByOwner = async (email) => {
+  const response = await api.get(`/api/theatre/getTheatresByOwner/${email}`);
   return response.data;
 };
 

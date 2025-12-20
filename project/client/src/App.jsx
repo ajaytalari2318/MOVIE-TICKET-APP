@@ -44,6 +44,7 @@ function App() {
             </ProtectedRoute>
           } 
           />
+          
 
         <Route 
           path="/profile" 
@@ -53,6 +54,7 @@ function App() {
             </ProtectedRoute>
           } 
         />
+        
       </Routes>
     </BrowserRouter>
   );

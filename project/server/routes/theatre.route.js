@@ -46,17 +46,17 @@ theatreRouter.get('/getAllTheatres', async (req, res) => {
 });
 
 // Get theatres by owner (for partner)
-theatreRouter.get('/getTheatresByOwner/:ownerId', async (req, res) => {
+// Get theatre by ID (for admin/partner/public)
+theatreRouter.get('/getTheatresByOwner/:emailId', async (req, res) => {
   try {
-    const { ownerId } = req.params;
-    const theatres = await Theatre.find({ owner: ownerId })
-      .populate('approvedBy', 'name')
+    const { emailId } = req.params;
+    const theatres = await Theatre.find({ "contact.email": emailId })
       .sort({ createdAt: -1 });
-    
+
     res.status(200).json({
       success: true,
       message: 'Theatres fetched successfully',
-      theatres: theatres,
+      theatres,
     });
   } catch (error) {
     res.status(500).json({
@@ -65,6 +65,8 @@ theatreRouter.get('/getTheatresByOwner/:ownerId', async (req, res) => {
     });
   }
 });
+
+
 
 // Get approved theatres only (for public)
 theatreRouter.get('/getApprovedTheatres', async (req, res) => {
