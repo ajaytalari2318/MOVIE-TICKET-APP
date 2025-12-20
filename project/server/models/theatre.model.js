@@ -1,4 +1,3 @@
-// server/models/theatre.model.js - Enhanced Version
 const mongoose = require('mongoose');
 
 const theatreSchema = new mongoose.Schema({
@@ -17,42 +16,24 @@ const theatreSchema = new mongoose.Schema({
   totalScreens: {
     type: Number,
     required: true,
-    min: 1 
+    min: 1
   },
   facilities: {
     parking: { type: Boolean, default: false },
     foodCourt: { type: Boolean, default: false },
-    wheelchairAccess: { type: Boolean, default: false },
-    threeDScreen: { type: Boolean, default: false },
-    reclinerSeats: { type: Boolean, default: false }
+    wheelchairAccess: { type: Boolean, default: false }
   },
   contact: {
-    phone: { type: String, required: true },
-    email: { type: String, required: true }
+    owner:{type:String},
+    phone: { type: String },
+    email: { type: String }
   },
-  owner: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'users',
-    required: true
-  },
-  status: {
-    type: String,
-    enum: ['pending', 'approved', 'rejected'],
-    default: 'pending'
-  },
-  rejectionReason: {
-    type: String
-  },
-  approvedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'users'
-  },
-  approvedAt: {
-    type: Date
-  }
-},
-  { timestamps: true }
-);
+status: {
+  type: String,
+  enum: ['pending', 'approved', 'rejected'],
+  default: 'pending'
+}},
+ { timestamps: true });
 
 const theatre = mongoose.model('theatres', theatreSchema);
 module.exports = theatre;

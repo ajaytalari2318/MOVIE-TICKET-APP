@@ -30,7 +30,8 @@ const Profile = () => {
 
   useEffect(() => {
     fetchMovies();
-    fetchTheatres();
+  fetchTheatres();
+
 
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -55,16 +56,18 @@ const Profile = () => {
   };
 
   const fetchTheatres = async () => {
-    try {
-      setTheatreLoading(true);
-      const response = await getAllTheatres();
-      setTheatres(response.theatres || []);
-    } catch (error) {
-      message.error('Failed to fetch theatres.');
-    } finally {
-      setTheatreLoading(false);
-    }
-  };
+  try {
+    setTheatreLoading(true);
+    const response = await getAllTheatres();
+    console.log('Fetched theatres:', response.theatres); 
+    setTheatres(response.theatres || []);
+  } catch (error) {
+    message.error('Failed to fetch theatres.');
+  } finally {
+    setTheatreLoading(false);
+  }
+};
+
 
   // Movie handlers
   const handleEdit = (record) => {
@@ -257,17 +260,19 @@ const Profile = () => {
       ),
       responsive: ['md']
     },
-    {
-      title: 'Owner',
-      key: 'owner',
-      render: (_, record) => (
-        <Space direction="vertical" size="small">
-          <Text>{record.owner?.name}</Text>
-          <Text type="secondary" style={{ fontSize: '12px' }}>{record.owner?.email}</Text>
-        </Space>
-      ),
-      responsive: ['lg']
-    },
+  {
+  title: 'Owner',
+  key: 'owner',
+  render: (_, record) => (
+    <Space direction="vertical" size="small">
+      <Text strong>{record.contact?.owner}</Text>
+      <Text type="secondary" style={{ fontSize: '12px' }}>{record.contact?.email}</Text>
+    </Space>
+  ),
+  responsive: ['lg']
+},
+
+
     {
       title: 'Screens',
       dataIndex: 'totalScreens',
@@ -616,13 +621,13 @@ const Profile = () => {
                 </Space>
               </div>
 
-              <div>
+              {/* <div>
                 <Text strong>Owner:</Text>
                 <Paragraph>
-                  {selectedTheatre?.owner?.name || 'N/A'} <br />
-                  {selectedTheatre?.owner?.email || 'N/A'}
+                  {selectedTheatre?.owner|| 'N/A'} <br />
+                  {selectedTheatre?.owner || 'N/A'}
                 </Paragraph>
-              </div>
+              </div> */}
 
               {selectedTheatre?.rejectionReason && (
                 <Card style={{ background: '#fff1f0', border: '1px solid #ffccc7' }}>

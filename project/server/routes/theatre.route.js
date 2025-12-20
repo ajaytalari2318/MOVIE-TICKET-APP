@@ -8,7 +8,7 @@ theatreRouter.post('/addTheatre', async (req, res) => {
   try {
     const theatreData = {
       ...req.body,
-      status: 'pending' // Always starts as pending
+      status: 'pending'
     };
     
     const newTheatre = new Theatre(theatreData);
@@ -31,9 +31,6 @@ theatreRouter.post('/addTheatre', async (req, res) => {
 theatreRouter.get('/getAllTheatres', async (req, res) => {
   try {
     const theatres = await Theatre.find()
-      .populate('owner', 'name email')
-      .populate('approvedBy', 'name')
-      .sort({ createdAt: -1 });
     
     res.status(200).json({
       success: true,
