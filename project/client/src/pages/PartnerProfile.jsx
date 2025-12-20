@@ -1,16 +1,16 @@
-// src/pages/PartnerProfile.jsx - Enhanced Theatre Owner Profile
+// src/pages/PartnerProfile.jsx - Updated with Theatre Details Modal
 import React, { useState, useEffect } from 'react';
 import { 
   Layout, Card, Avatar, Typography, Row, Col, Space, Tabs, 
   Statistic, Progress, Empty, Button, Form, Input, message, 
-  Modal, Divider, Tag, Timeline, List, Badge, Table
+  Modal, Divider, Tag, List, Badge, Table, Descriptions
 } from 'antd';
 import {
   UserOutlined, MailOutlined, PhoneOutlined, EditOutlined,
   LockOutlined, ShopOutlined, DashboardOutlined, RiseOutlined,
-  TeamOutlined, CheckCircleOutlined, ClockCircleOutlined,
+  CheckCircleOutlined, ClockCircleOutlined, PlusOutlined,
   TrophyOutlined, CalendarOutlined, EnvironmentOutlined,
-  StarOutlined, FireOutlined, ThunderboltOutlined
+  StarOutlined, FireOutlined, ThunderboltOutlined, EyeOutlined
 } from '@ant-design/icons';
 import Navbar from './Navbar';
 import { useNavigate } from 'react-router-dom';
@@ -27,20 +27,23 @@ function PartnerProfile() {
   const [loading, setLoading] = useState(true);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [passwordModalVisible, setPasswordModalVisible] = useState(false);
+  const [viewTheatreModal, setViewTheatreModal] = useState(false);
+  const [selectedTheatre, setSelectedTheatre] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [form] = Form.useForm();
   const [passwordForm] = Form.useForm();
+  
 
-  // Mock analytics data - replace with actual API call
+  // Mock analytics data
   const [analytics] = useState({
     totalBookings: 1247,
     monthlyRevenue: 245680,
-    averageRating: 4.6,
+    averageRating: 9.0,
     growthRate: 23.5,
     topMovies: [
-      { title: 'Jawan', bookings: 342, revenue: 68400 },
-      { title: 'Pathaan', bookings: 298, revenue: 59600 },
-      { title: 'Tiger 3', bookings: 267, revenue: 53400 },
+      { title: 'Varanasi', bookings: 342, revenue: 68400 },
+      { title: 'RRR', bookings: 298, revenue: 59600 },
+      { title: 'Avatar', bookings: 267, revenue: 53400 },
     ],
     recentBookings: [
       { id: 'BK1234', movie: 'Jawan', date: '2024-12-20', amount: 1200, seats: 4 },
@@ -48,7 +51,7 @@ function PartnerProfile() {
       { id: 'BK1236', movie: 'Tiger 3', date: '2024-12-19', amount: 1500, seats: 5 },
     ],
   });
-console.log(userData)
+
   useEffect(() => {
     const userData = localStorage.getItem('user');
     if (userData) {
@@ -67,26 +70,25 @@ console.log(userData)
     return () => window.removeEventListener('resize', checkMobile);
   }, [navigate]);
 
- const fetchTheatres = async (userEmail) => {
-  try {
-    setLoading(true);
-    const response = await getAllTheatres();
-    console.log('Raw theatres response:', response); // ✅ log full API response
+  const fetchTheatres = async (userEmail) => {
+    try {
+      setLoading(true);
+      const response = await getAllTheatres();
+      const userTheatres = (response.theatres || []).filter(
+        theatre => theatre.contact?.email === userEmail
+      );
+      setTheatres(userTheatres);
+    } catch (error) {
+      message.error('Failed to fetch theatres');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const userTheatres = (response.theatres || []).filter(
-      theatre => theatre.contact?.email === userEmail
-    );
-    console.log('Filtered theatres for user:', userEmail, userTheatres); // ✅ log filtered list
-
-    setTheatres(userTheatres);
-  } catch (error) {
-    message.error('Failed to fetch theatres');
-    console.error('Error fetching theatres:', error); // ✅ log error
-  } finally {
-    setLoading(false);
-  }
-};
-
+  const handleViewTheatre = (theatre) => {
+    setSelectedTheatre(theatre);
+    setViewTheatreModal(true);
+  };
 
   const handleEditProfile = () => {
     form.setFieldsValue({
@@ -211,7 +213,6 @@ console.log(userData)
 
   const DashboardTab = () => (
     <Space direction="vertical" size="large" style={{ width: '100%' }}>
-      {/* Key Metrics */}
       <Row gutter={[16, 16]}>
         <Col xs={12} sm={6}>
           <Card bordered={false} style={{ background: '#e3f2fd', borderRadius: '12px' }}>
@@ -243,13 +244,13 @@ console.log(userData)
             <Statistic
               title="Average Rating"
               value={analytics.averageRating}
-              prefix={<StarOutlined style={{ color: '#ff9800' }} />}
-              suffix="/ 5"
-              valueStyle={{ color: '#ff9800' }}
+              prefix={<StarOutlined style={{ color: '#7ab184ff' }} />}
+              suffix="/ 10"
+              valueStyle={{ color: '#5dac77ff' }}
             />
             <Progress 
-              percent={(analytics.averageRating / 5) * 100} 
-              strokeColor="#ff9800" 
+              percent={(analytics.averageRating / 10) * 100} 
+              strokeColor="#5fa473ff" 
               showInfo={false} 
             />
           </Card>
@@ -267,7 +268,6 @@ console.log(userData)
         </Col>
       </Row>
 
-      {/* Top Performing Movies */}
       <Card 
         title={
           <Space>
@@ -305,7 +305,6 @@ console.log(userData)
         />
       </Card>
 
-      {/* Recent Bookings */}
       <Card 
         title={
           <Space>
@@ -392,6 +391,23 @@ console.log(userData)
         </Col>
       </Row>
 
+      {/* Add Theatre Button */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Button
+          type="primary"
+          size="large"
+          icon={<PlusOutlined />}
+          onClick={() => message.info('Add Theatre form coming soon!')}
+          style={{
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            border: 'none',
+            fontWeight: '600'
+          }}
+        >
+          Add Theatre
+        </Button>
+      </div>
+
       {/* Theatres List */}
       {theatres.length === 0 ? (
         <Empty
@@ -402,7 +418,7 @@ console.log(userData)
             type="primary"
             size="large"
             icon={<ShopOutlined />}
-            onClick={() => navigate('/partner')}
+            onClick={() => message.info('Add Theatre form coming soon!')}
             style={{
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               border: 'none'
@@ -449,7 +465,7 @@ console.log(userData)
                     </Text>
                     <Space>
                       <Tag color="blue">{theatre.totalScreens} Screens</Tag>
-                      <Tag color="green">{theatre.seatingCapacity} Seats</Tag>
+                      <Tag color="green">{theatre.seatingCapacity || 'N/A'} Seats</Tag>
                     </Space>
                   </Space>
 
@@ -472,7 +488,8 @@ console.log(userData)
 
                   <Button
                     block
-                    onClick={() => navigate('/partner')}
+                    icon={<EyeOutlined />}
+                    onClick={() => handleViewTheatre(theatre)}
                     style={{ marginTop: '8px' }}
                   >
                     View Details
@@ -510,7 +527,7 @@ console.log(userData)
           hoverable
           style={{ borderRadius: '12px', height: '100%' }}
           bodyStyle={{ padding: '24px' }}
-          onClick={() => navigate('/partner')}
+          onClick={() => message.info('Add Theatre form coming soon!')}
         >
           <Space direction="vertical" size="middle">
             <ShopOutlined style={{ fontSize: '32px', color: '#667eea' }} />
@@ -575,6 +592,77 @@ console.log(userData)
             </Tabs.TabPane>
           </Tabs>
         </Card>
+
+        {/* View Theatre Details Modal */}
+        <Modal
+          title="Theatre Details"
+          open={viewTheatreModal}
+          onCancel={() => {
+            setViewTheatreModal(false);
+            setSelectedTheatre(null);
+          }}
+          footer={null}
+          width={isMobile ? '95%' : 700}
+        >
+          {selectedTheatre && (
+            <Space direction="vertical" size="large" style={{ width: '100%' }}>
+              <Card style={{ background: '#f5f5f5' }}>
+                <Title level={4}>{selectedTheatre.name}</Title>
+                <Tag
+                  color={
+                    selectedTheatre.status === 'approved' ? 'green' :
+                    selectedTheatre.status === 'rejected' ? 'red' : 'orange'
+                  }
+                >
+                  {selectedTheatre.status.toUpperCase()}
+                </Tag>
+              </Card>
+
+              <Descriptions bordered column={1}>
+                <Descriptions.Item label="Address">
+                  {selectedTheatre.location?.address || 'N/A'}
+                </Descriptions.Item>
+                <Descriptions.Item label="City">
+                  {selectedTheatre.location?.city || 'N/A'}
+                </Descriptions.Item>
+                <Descriptions.Item label="State">
+                  {selectedTheatre.location?.state || 'N/A'}
+                </Descriptions.Item>
+                <Descriptions.Item label="Pincode">
+                  {selectedTheatre.location?.pincode || 'N/A'}
+                </Descriptions.Item>
+                <Descriptions.Item label="Total Screens">
+                  {selectedTheatre.totalScreens || 'N/A'}
+                </Descriptions.Item>
+                <Descriptions.Item label="Contact Phone">
+                  {selectedTheatre.contact?.phone || 'N/A'}
+                </Descriptions.Item>
+                <Descriptions.Item label="Contact Email">
+                  {selectedTheatre.contact?.email || 'N/A'}
+                </Descriptions.Item>
+                <Descriptions.Item label="Owner">
+                  {selectedTheatre.contact?.owner || 'N/A'}
+                </Descriptions.Item>
+              </Descriptions>
+
+              <div>
+                <Text strong>Facilities:</Text>
+                <Space wrap style={{ marginTop: '8px' }}>
+                  {selectedTheatre.facilities?.parking && <Tag color="blue">Parking</Tag>}
+                  {selectedTheatre.facilities?.foodCourt && <Tag color="blue">Food Court</Tag>}
+                  {selectedTheatre.facilities?.wheelchairAccess && <Tag color="blue">Wheelchair Access</Tag>}
+                </Space>
+              </div>
+
+              {selectedTheatre.rejectionReason && (
+                <Card style={{ background: '#fff1f0', border: '1px solid #ffccc7' }}>
+                  <Text strong style={{ color: '#cf1322' }}>Rejection Reason:</Text>
+                  <Paragraph>{selectedTheatre.rejectionReason}</Paragraph>
+                </Card>
+              )}
+            </Space>
+          )}
+        </Modal>
 
         {/* Edit Profile Modal */}
         <Modal

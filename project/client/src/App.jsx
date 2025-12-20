@@ -1,4 +1,4 @@
-// src/App.jsx - Updated with Guest Experience
+// src/App.jsx - Updated with Role-Based Protection
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Homepage from './pages/Homepage';
@@ -8,8 +8,7 @@ import Register from './pages/Register';
 import MovieDetails from './pages/MovieDetails';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserProfile from './pages/UserProfile';
-import Partner from './pages/Partner';
-
+import PartnerProfile from './pages/PartnerProfile';
 
 function App() {
   return (
@@ -26,35 +25,35 @@ function App() {
         {/* Movie Details - accessible to guests but with limited interaction */}
         <Route path="/movie/:id" element={<MovieDetails />} />
 
-        {/* Protected Routes - require authentication */}
+        {/* User Profile - Only for regular users */}
         <Route 
           path="/user-profile" 
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={['user']}>
               <UserProfile />
             </ProtectedRoute>
           } 
         />
 
-       <Route 
+        {/* Partner Profile - Only for partners */}
+        <Route 
           path="/partner-profile" 
           element={
-            <ProtectedRoute>
-              <Partner />
+            <ProtectedRoute allowedRoles={['partner']}>
+              <PartnerProfile />
             </ProtectedRoute>
           } 
-          />
-          
+        />
 
+        {/* Admin Profile - Only for admins */}
         <Route 
           path="/profile" 
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={['admin']}>
               <Profile />
             </ProtectedRoute>
           } 
         />
-        
       </Routes>
     </BrowserRouter>
   );
