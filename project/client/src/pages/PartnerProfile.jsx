@@ -46,9 +46,9 @@ function PartnerProfile() {
       { title: 'Avatar', bookings: 267, revenue: 53400 },
     ],
     recentBookings: [
-      { id: 'BK1234', movie: 'Jawan', date: '2024-12-20', amount: 1200, seats: 4 },
-      { id: 'BK1235', movie: 'Pathaan', date: '2024-12-19', amount: 900, seats: 3 },
-      { id: 'BK1236', movie: 'Tiger 3', date: '2024-12-19', amount: 1500, seats: 5 },
+      { id: 'BK1234', movie: 'Avatar', date: '2024-12-20', amount: 1200, seats: 4 },
+      { id: 'BK1235', movie: 'RRR', date: '2024-12-19', amount: 900, seats: 3 },
+      { id: 'BK1236', movie: 'Varanasi', date: '2024-12-19', amount: 1500, seats: 5 },
     ],
   });
 
@@ -740,7 +740,7 @@ function PartnerProfile() {
               label="Current Password"
               rules={[{ required: true, message: 'Please enter your current password' }]}
             >
-              <Input.Password size="large" prefix={<LockOutlined />} />
+              <Input.Password size="large" prefix={<LockOutlined />}/>
             </Form.Item>
             
             <Form.Item

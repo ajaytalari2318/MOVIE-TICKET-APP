@@ -19,21 +19,14 @@ function App() {
         <Route path="/login" element={<Login />} />
         
         {/* Homepage - accessible to all (guest + logged in) */}
-        <Route path="/home" element={<Homepage />} />
+        <Route path="/home" element={<Homepage/>} />
         <Route path="/" element={<Navigate to="/home" replace />} />
         
         {/* Movie Details - accessible to guests but with limited interaction */}
-        <Route path="/movie/:id" element={<MovieDetails />} />
+        <Route path="/movie/:id" element={<MovieDetails/>} />
 
         {/* User Profile - Only for regular users */}
-        <Route 
-          path="/user-profile" 
-          element={
-            <ProtectedRoute allowedRoles={['user']}>
-              <UserProfile />
-            </ProtectedRoute>
-          } 
-        />
+        <Route path="/user-profile" element={<ProtectedRoute allowedRoles={['user']}><UserProfile /></ProtectedRoute>} />
 
         {/* Partner Profile - Only for partners */}
         <Route 
@@ -46,16 +39,7 @@ function App() {
         />
 
         {/* Admin Profile - Only for admins */}
-        <Route 
-          path="/profile" 
-          element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <Profile />
-            </ProtectedRoute>
-          } 
-        />
-      </Routes>
-    </BrowserRouter>
+        <Route path="/profile" element={<ProtectedRoute allowedRoles={['admin']}><Profile /></ProtectedRoute>} /></Routes></BrowserRouter>
   );
 }
 
