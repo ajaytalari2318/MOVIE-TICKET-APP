@@ -31,10 +31,8 @@ function UserProfile() {
   const [passwordForm] = Form.useForm();
 
   // Mock booking data - replace with actual API call
-  const [bookings] = useState([
-   
-     
-  ]);
+  const [bookings, setBookings] = useState([]);
+
 
   // Mock favorites - replace with actual API call
   const [favorites] = useState([
@@ -42,6 +40,8 @@ function UserProfile() {
   ]);
 
   useEffect(() => {
+     const storedBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+    setBookings(storedBookings);
     const userData = localStorage.getItem('user');
     if (userData) {
       setUser(JSON.parse(userData));

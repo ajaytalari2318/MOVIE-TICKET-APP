@@ -1,4 +1,4 @@
-// src/pages/Homepage.jsx - Updated with Guest Experience
+// src/pages/Homepage.jsx - Updated with Booking Navigation
 import React, { useState, useEffect } from 'react';
 import { Layout, Button, Typography, Row, Col, Card, Space, Input, Select, Spin, Empty, Modal } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -94,7 +94,8 @@ function Homepage() {
     if (isGuest) {
       showSignInPrompt('book tickets');
     } else {
-      navigate(`/movie/${movieId}`);
+      // Navigate to booking page instead of movie details
+      navigate(`/booking/${movieId}`);
     }
   };
 

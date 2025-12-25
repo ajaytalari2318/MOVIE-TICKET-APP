@@ -79,8 +79,7 @@ export default function Navbar() {
       icon: <SettingOutlined />,
       label: 'My Bookings',
       onClick: () => {
-        message.info('Bookings page coming soon!');
-        setDrawerVisible(false);
+       navigate('/User_Bookings');;
       }
     },
     {

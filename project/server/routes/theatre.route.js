@@ -68,25 +68,24 @@ theatreRouter.get('/getTheatresByOwner/:emailId', async (req, res) => {
 
 
 
-// Get approved theatres only (for public)
 theatreRouter.get('/getApprovedTheatres', async (req, res) => {
   try {
-    const theatres = await Theatre.find({ status: 'approved' })
-      .populate('owner', 'name')
-      .sort({ name: 1 });
-    
+    const theatres = await Theatre.find({ status: 'approved' });
     res.status(200).json({
       success: true,
       message: 'Approved theatres fetched successfully',
-      theatres: theatres,
+      theatres,
     });
   } catch (error) {
+    console.error('Error in getApprovedTheatres:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch approved theatres',
+      error: error.message,
     });
   }
 });
+
 
 // Admin: Approve theatre
 theatreRouter.put('/approveTheatre/:id', async (req, res) => {
