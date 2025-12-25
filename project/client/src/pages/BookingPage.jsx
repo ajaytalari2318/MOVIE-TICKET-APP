@@ -44,20 +44,20 @@ function BookingPage() {
             setLoading(true);
 
             // Fetch movie details
-            const movieResponse = await axios.get(`${API_BASE_URL}/api/movie/movieById/6944490afdf0cc01a6778df1`);
+            const movieResponse = await axios.get(`${API_BASE_URL}/api/movie/movieById/${id}`);
             if (movieResponse.data.success) {
                 setMovie(movieResponse.data.movie);
-                console.log(movieResponse.data.movie)
+                //console.log(movieResponse.data.movie)
             }
 
             // Fetch approved theatres
         const theatreResponse = await getAllTheatres();
-            console.log(theatreResponse)
+            //console.log(theatreResponse)
             if (theatreResponse.success) {
   const theatresWithShows = generateShowTimings(theatreResponse.theatres);
   setTheatres(theatresWithShows);
-  console.log(theatresWithShows);
-  console.log(theatreResponse);        
+  //console.log(theatresWithShows);
+  //console.log(theatreResponse);        
 }
 
 
