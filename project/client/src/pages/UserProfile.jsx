@@ -38,7 +38,32 @@ function UserProfile() {
   const [favorites] = useState([
     
   ]);
+const handleDownloadTicket = (booking) => {
+  const ticketContent = `
+  🎟️ BookMyShow Ticket
+  --------------------------
+  Booking ID: ${booking.bookingId || 'N/A'}
+  Movie: ${booking.movie}
+  Theatre: ${booking.theatre}
+  Date: ${booking.date}
+  Time: ${booking.time}
+  Seats: ${booking.seats}
+  Amount Paid: ₹${booking.amount}
+  Status: ${booking.status?.toUpperCase() || 'CONFIRMED'}
+  --------------------------
+  Enjoy your movie! 🍿
+  `;
 
+  const blob = new Blob([ticketContent], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `ticket_${booking.bookingId || Date.now()}.txt`;
+  link.click();
+
+  URL.revokeObjectURL(url);
+};
   useEffect(() => {
      const storedBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
     setBookings(storedBookings);
@@ -265,7 +290,7 @@ function UserProfile() {
                   
                   <Space style={{ marginTop: '8px' }}>
                     <Button size="small">View Details</Button>
-                    <Button size="small">Download Ticket</Button>
+                   <Button size="small" onClick={()=>handleDownloadTicket(booking)}>Download Ticket</Button>
                   </Space>
                 </Space>
               </Card>
