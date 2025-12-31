@@ -153,7 +153,6 @@ function MovieDetails() {
                   {/* Book Button */}
                   <Button
                    onClick={() => navigate(`/booking/${id}`)}
-                    type="primary"
                     size="large"
                     block
                     style={{
