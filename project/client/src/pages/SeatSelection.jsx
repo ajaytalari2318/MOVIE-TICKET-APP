@@ -32,30 +32,40 @@ function SeatSelection() {
   // Generate seat layout
   const generateSeats = () => {
     const sections = [
-      { name: 'Premium', rows: 3, cols: 16, price: show.price + 100, type: 'premium' },
-      { name: 'Regular', rows: 6, cols: 16, price: show.price, type: 'regular' },
-      { name: 'Economy', rows: 4, cols: 18, price: show.price - 50, type: 'economy' }
+      { name: 'Ecconomy', rows: 5, cols: 16, price: show.price - 50, type: 'Ecconomy' },
+      { name: 'Regular', rows:6, cols: 16, price: show.price, type: 'regular' },
+      { name: 'Premium', rows: 3, cols: 18, price: show.price + 100, type: 'Premium' }
     ];
 
     return sections.map(section => {
       const seats = [];
       for (let row = 0; row < section.rows; row++) {
-        const rowSeats = [];
-        const rowLetter = String.fromCharCode(65 + row + (section.name === 'Regular' ? 3 : section.name === 'Economy' ? 9 : 0));
-        
-        for (let col = 1; col <= section.cols; col++) {
-          const seatNumber = `${rowLetter}${col}`;
-          const isBooked = Math.random() < 0.15; // 15% random booked seats
+  const rowSeats = [];
+
+        //const rowLetter = String.fromCharCode(65 + row + (section.name === 'Regular' ? 3 : section.name === 'Economy' ? 9 : 0));
+        let offset = 0;
+if (section.name === 'Economy') offset = 9;      // J
+else if (section.name === 'Regular') offset = 5; // D
+else if (section.name === 'Premium') offset = 11; // A
+
+const rowLetter = String.fromCharCode(65 + offset + row);
+
+  for (let col = 1; col <= section.cols; col++) {
+    const seatNumber = `${rowLetter}${col}`;
+    const isBooked = Math.random() < 0.15;
+
           
-          rowSeats.push({
-            id: seatNumber,
-            number: seatNumber,
-            status: isBooked ? 'booked' : 'available',
-            type: section.type,
-            price: section.price
-          });
+           rowSeats.push({
+      id: seatNumber,
+      number: seatNumber,
+      status: isBooked ? 'booked' : 'available',
+      type: section.type,
+      price: section.price
+    });
+
         }
-        seats.push(rowSeats);
+       seats.push(rowSeats);
+
       }
       return { ...section, seats };
     });
@@ -105,7 +115,7 @@ function SeatSelection() {
   const getSeatColor = (seat) => {
     if (selectedSeats.find(s => s.id === seat.id)) return '#52c41a';
     if (seat.status === 'booked') return '#d9d9d9';
-    if (seat.type === 'premium') return '#722ed1';
+    if (seat.type === 'Ecconomy') return '#722ed1';
     if (seat.type === 'regular') return '#1890ff';
     return '#fa8c16';
   };
@@ -160,7 +170,7 @@ function SeatSelection() {
                 <Text>Selected</Text>
               </Space>
               <Space>
-                <MinusCircleFilled style={{ fontSize: '20px', color: '#722ed1' }} />
+                <MinusCircleFilled style={{ fontSize: '20px', color: '#fa8c16'  }} />
                 <Text>Premium (₹{show.price + 100})</Text>
               </Space>
               <Space>
@@ -168,7 +178,7 @@ function SeatSelection() {
                 <Text>Regular (₹{show.price})</Text>
               </Space>
               <Space>
-                <MinusCircleFilled style={{ fontSize: '20px', color: '#fa8c16' }} />
+                <MinusCircleFilled style={{ fontSize: '20px', color: '#722ed1' }} />
                 <Text>Economy (₹{show.price - 50})</Text>
               </Space>
               <Space>
