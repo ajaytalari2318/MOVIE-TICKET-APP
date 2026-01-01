@@ -14,8 +14,10 @@ import UserProfile from './pages/UserProfile';
 import PartnerProfile from './pages/PartnerProfile';
 import BookingPage from './pages/BookingPage';
 import BookingHistory from './pages/BookingHistory';
+
 function App() {
   return (
+    
     <BrowserRouter>
       <Routes>
         {/* Public Routes */}

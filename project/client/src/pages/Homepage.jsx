@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { SearchOutlined, FilterOutlined, HeartOutlined, HeartFilled } from '@ant-design/icons';
 import Navbar from './Navbar';
 import { getAllMovies } from '../calls/movieCalls';
+import LoadingScreen from '../components/LoadingScreen';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -22,6 +23,7 @@ function Homepage() {
   const [selectedGenre, setSelectedGenre] = useState('all');
   const [selectedLanguage, setSelectedLanguage] = useState('all');
   const [favorites, setFavorites] = useState([]);
+  const [showLoading, setShowLoading] = useState(true);
 
   useEffect(() => {
     fetchMovies();
@@ -121,6 +123,8 @@ function Homepage() {
   const languages = [...new Set(movies.map(m => m.language))];
 
   return (
+    <>
+    {showLoading && <LoadingScreen onComplete={() => setShowLoading(false)} />}
     <Layout style={{ minHeight: '100vh', background: '#f5f5f5' }}>
       <Navbar />
       <Content style={{ 
@@ -369,6 +373,7 @@ function Homepage() {
         )}
       </Content>
     </Layout>
+    </>
   );
 }
 
