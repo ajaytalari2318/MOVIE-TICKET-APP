@@ -11,10 +11,10 @@ import {
   TrophyOutlined, CalendarOutlined, EnvironmentOutlined,
   StarOutlined, FireOutlined, ThunderboltOutlined, EyeOutlined
 } from '@ant-design/icons';
+import Navbar from './Navbar';
 import AddTheatreModal from '../components/AddTheatreModal';
-import { getAllTheatres, getTheatresByOwner } from '../calls/theatreCalls';
-
-
+import { getAllTheatres } from '../calls/theatreCalls';
+import dayjs from 'dayjs';
 
 const { Content } = Layout;
 const { Title, Text, Paragraph } = Typography;
@@ -31,7 +31,6 @@ function PartnerProfile() {
   const [isMobile, setIsMobile] = useState(false);
   const [form] = Form.useForm();
   const [passwordForm] = Form.useForm();
-  const [theatreForm] = Form.useForm();
 
   const analytics = {
     totalBookings: 1247,
@@ -68,8 +67,6 @@ function PartnerProfile() {
     try {
       setLoading(true);
       const data = await getAllTheatres();
-
-
       const userTheatres = (data.theatres || []).filter(
         theatre => theatre.contact?.email === userEmail
       );
@@ -81,64 +78,53 @@ function PartnerProfile() {
     }
   };
 
-  const handleAddTheatre = async (values) => {
-    try {
-      const theatreData = {
-        name: values.name,
-        location: {
-          address: values.address,
-          city: values.city,
-          state: values.state,
-          country: values.country || 'India',
-          pincode: values.pincode
-        },
-        totalScreens: values.totalScreens,
-        facilities: {
-          parking: values.parking || false,
-          foodCourt: values.foodCourt || false,
-          wheelchairAccess: values.wheelchairAccess || false
-        },
-        contact: {
-          owner: values.owner,
-          phone: values.phone,
-          email: user.email
-        },
-        status: 'pending'
-      };
-
-      const response = await fetch('https://bookmyshow-zklm.onrender.com/api/theatre/addTheatre', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(theatreData)
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        message.success('Theatre request submitted successfully!');
-        theatreForm.resetFields();
-        setAddTheatreModal(false);
-        fetchTheatres(user.email);
-      } else {
-        message.error(data.message || 'Failed to submit theatre request');
-      }
-    } catch (error) {
-      message.error('Failed to submit theatre request');
-    }
-  };
-
   const handleViewTheatre = (theatre) => {
     setSelectedTheatre(theatre);
     setViewTheatreModal(true);
   };
 
+  const handleEditProfile = () => {
+    form.setFieldsValue({
+      name: user.name,
+      email: user.email,
+      phone: user.phone || '',
+    });
+    setEditModalVisible(true);
+  };
+
+  const handleUpdateProfile = async (values) => {
+    try {
+      const updatedUser = { ...user, ...values };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      message.success('Profile updated successfully!');
+      setEditModalVisible(false);
+    } catch (error) {
+      message.error('Failed to update profile');
+    }
+  };
+
+  const handleChangePassword = async (values) => {
+    if (values.newPassword !== values.confirmPassword) {
+      message.error('Passwords do not match!');
+      return;
+    }
+    try {
+      message.success('Password changed successfully!');
+      setPasswordModalVisible(false);
+      passwordForm.resetFields();
+    } catch (error) {
+      message.error('Failed to change password');
+    }
+  };
+
   if (!user) return null;
 
   const getInitial = (name) => name ? name.charAt(0).toUpperCase() : 'P';
-
   const approvedCount = theatres.filter(t => t.status === 'approved').length;
   const pendingCount = theatres.filter(t => t.status === 'pending').length;
   const totalScreens = theatres.reduce((sum, t) => sum + (t.totalScreens || 0), 0);
+  const totalCapacity = theatres.reduce((sum, t) => sum + (t.seatingCapacity || 0), 0);
 
   const ProfileHeader = () => (
     <Card
@@ -166,7 +152,7 @@ function PartnerProfile() {
             </Avatar>
           </Badge>
         </Col>
-
+        
         <Col xs={24} md={14}>
           <Space direction="vertical" size="small" style={{ width: '100%' }}>
             <Title level={isMobile ? 3 : 2} style={{ color: '#fff', margin: 0 }}>
@@ -192,13 +178,13 @@ function PartnerProfile() {
             </Space>
           </Space>
         </Col>
-
+        
         <Col xs={24} md={4} style={{ textAlign: isMobile ? 'center' : 'right' }}>
           <Button
             type="primary"
             size="large"
             icon={<EditOutlined />}
-            onClick={() => setEditModalVisible(true)}
+            onClick={handleEditProfile}
             style={{
               background: '#fff',
               color: '#667eea',
@@ -215,6 +201,93 @@ function PartnerProfile() {
     </Card>
   );
 
+  const DashboardTab = () => (
+    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <Row gutter={[16, 16]}>
+        <Col xs={12} sm={6}>
+          <Card bordered={false} style={{ background: '#e3f2fd', borderRadius: '12px' }}>
+            <Statistic
+              title="Total Bookings"
+              value={analytics.totalBookings}
+              prefix={<CalendarOutlined style={{ color: '#2196f3' }} />}
+              valueStyle={{ color: '#2196f3' }}
+            />
+            <Progress percent={75} strokeColor="#2196f3" showInfo={false} />
+          </Card>
+        </Col>
+        <Col xs={12} sm={6}>
+          <Card bordered={false} style={{ background: '#e8f5e9', borderRadius: '12px' }}>
+            <Statistic
+              title="Monthly Revenue"
+              value={analytics.monthlyRevenue}
+              prefix="₹"
+              valueStyle={{ color: '#4caf50' }}
+            />
+            <Space>
+              <RiseOutlined style={{ color: '#4caf50' }} />
+              <Text style={{ color: '#4caf50' }}>+{analytics.growthRate}%</Text>
+            </Space>
+          </Card>
+        </Col>
+        <Col xs={12} sm={6}>
+          <Card bordered={false} style={{ background: '#fff3e0', borderRadius: '12px' }}>
+            <Statistic
+              title="Average Rating"
+              value={analytics.averageRating}
+              prefix={<StarOutlined style={{ color: '#ff9800' }} />}
+              suffix="/ 10"
+              valueStyle={{ color: '#ff9800' }}
+            />
+            <Progress percent={(analytics.averageRating / 10) * 100} strokeColor="#ff9800" showInfo={false} />
+          </Card>
+        </Col>
+        <Col xs={12} sm={6}>
+          <Card bordered={false} style={{ background: '#f3e5f5', borderRadius: '12px' }}>
+            <Statistic
+              title="Total Screens"
+              value={totalScreens}
+              prefix={<DashboardOutlined style={{ color: '#9c27b0' }} />}
+              valueStyle={{ color: '#9c27b0' }}
+            />
+            <Text type="secondary">{totalCapacity} total seats</Text>
+          </Card>
+        </Col>
+      </Row>
+
+      <Card title={<Space><FireOutlined style={{ color: '#f44336' }} />Top Performing Movies</Space>} style={{ borderRadius: '12px' }}>
+        <List
+          dataSource={analytics.topMovies}
+          renderItem={(movie, index) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={<Avatar style={{ backgroundColor: index === 0 ? '#ffd700' : index === 1 ? '#c0c0c0' : '#cd7f32', fontWeight: 'bold' }}>{index + 1}</Avatar>}
+                title={<Text strong>{movie.title}</Text>}
+                description={`${movie.bookings} bookings`}
+              />
+              <div>
+                <Text strong style={{ color: '#52c41a', fontSize: '16px' }}>₹{movie.revenue.toLocaleString()}</Text>
+              </div>
+            </List.Item>
+          )}
+        />
+      </Card>
+
+      <Card title={<Space><ThunderboltOutlined style={{ color: '#1890ff' }} />Recent Bookings</Space>} style={{ borderRadius: '12px' }}>
+        <Table
+          dataSource={analytics.recentBookings}
+          pagination={false}
+          columns={[
+            { title: 'Booking ID', dataIndex: 'id', key: 'id', render: (text) => <Tag color="blue">{text}</Tag> },
+            { title: 'Movie', dataIndex: 'movie', key: 'movie' },
+            { title: 'Date', dataIndex: 'date', key: 'date', render: (date) => dayjs(date).format('DD MMM YYYY') },
+            { title: 'Seats', dataIndex: 'seats', key: 'seats' },
+            { title: 'Amount', dataIndex: 'amount', key: 'amount', render: (amount) => <Text strong style={{ color: '#52c41a' }}>₹{amount}</Text> },
+          ]}
+        />
+      </Card>
+    </Space>
+  );
+
   const TheatresTab = () => (
     <Space direction="vertical" size="large" style={{ width: '100%' }}>
       <Row gutter={[16, 16]}>
@@ -222,9 +295,7 @@ function PartnerProfile() {
           <Card style={{ background: '#e8f5e9', borderRadius: '12px', border: 'none' }}>
             <Space direction="vertical" size="small">
               <Text type="secondary">Active Theatres</Text>
-              <Title level={2} style={{ margin: 0, color: '#4caf50' }}>
-                {approvedCount}
-              </Title>
+              <Title level={2} style={{ margin: 0, color: '#4caf50' }}>{approvedCount}</Title>
               <CheckCircleOutlined style={{ fontSize: '24px', color: '#4caf50' }} />
             </Space>
           </Card>
@@ -233,9 +304,7 @@ function PartnerProfile() {
           <Card style={{ background: '#fff3e0', borderRadius: '12px', border: 'none' }}>
             <Space direction="vertical" size="small">
               <Text type="secondary">Pending Approval</Text>
-              <Title level={2} style={{ margin: 0, color: '#ff9800' }}>
-                {pendingCount}
-              </Title>
+              <Title level={2} style={{ margin: 0, color: '#ff9800' }}>{pendingCount}</Title>
               <ClockCircleOutlined style={{ fontSize: '24px', color: '#ff9800' }} />
             </Space>
           </Card>
@@ -244,9 +313,7 @@ function PartnerProfile() {
           <Card style={{ background: '#e3f2fd', borderRadius: '12px', border: 'none' }}>
             <Space direction="vertical" size="small">
               <Text type="secondary">Total Screens</Text>
-              <Title level={2} style={{ margin: 0, color: '#2196f3' }}>
-                {totalScreens}
-              </Title>
+              <Title level={2} style={{ margin: 0, color: '#2196f3' }}>{totalScreens}</Title>
               <DashboardOutlined style={{ fontSize: '24px', color: '#2196f3' }} />
             </Space>
           </Card>
@@ -254,36 +321,16 @@ function PartnerProfile() {
       </Row>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <Button
-          type="primary"
-          size="large"
-          icon={<PlusOutlined />}
-          onClick={() => setAddTheatreModal(true)}
-          style={{
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            border: 'none',
-            fontWeight: '600'
-          }}
-        >
+        <Button type="primary" size="large" icon={<PlusOutlined />} onClick={() => setAddTheatreModal(true)}
+          style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none', fontWeight: '600' }}>
           Add Theatre
         </Button>
       </div>
 
       {theatres.length === 0 ? (
-        <Empty
-          description="No theatres added yet"
-          style={{ padding: '60px 0' }}
-        >
-          <Button
-            type="primary"
-            size="large"
-            icon={<ShopOutlined />}
-            onClick={() => setAddTheatreModal(true)}
-            style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              border: 'none'
-            }}
-          >
+        <Empty description="No theatres added yet" style={{ padding: '60px 0' }}>
+          <Button type="primary" size="large" icon={<ShopOutlined />} onClick={() => setAddTheatreModal(true)}
+            style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none' }}>
             Add Your First Theatre
           </Button>
         </Empty>
@@ -301,40 +348,25 @@ function PartnerProfile() {
                       {theatre.status.toUpperCase()}
                     </Tag>
                   </div>
-
                   <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                    <Text type="secondary">
-                      <EnvironmentOutlined /> {theatre.location?.city}, {theatre.location?.state}
-                    </Text>
+                    <Text type="secondary"><EnvironmentOutlined /> {theatre.location?.city}, {theatre.location?.state}</Text>
                     <Space>
                       <Tag color="blue">{theatre.totalScreens} Screens</Tag>
                       <Tag color="green">{theatre.seatingCapacity || 'N/A'} Seats</Tag>
                     </Space>
                   </Space>
-
                   <Divider style={{ margin: '8px 0' }} />
-
                   <Row gutter={[8, 8]}>
                     <Col span={12}>
                       <Text type="secondary" style={{ fontSize: '12px' }}>Contact</Text>
-                      <Paragraph ellipsis style={{ margin: 0, fontSize: '13px' }}>
-                        {theatre.contact?.phone}
-                      </Paragraph>
+                      <Paragraph ellipsis style={{ margin: 0, fontSize: '13px' }}>{theatre.contact?.phone}</Paragraph>
                     </Col>
                     <Col span={12}>
                       <Text type="secondary" style={{ fontSize: '12px' }}>Email</Text>
-                      <Paragraph ellipsis style={{ margin: 0, fontSize: '13px' }}>
-                        {theatre.contact?.email}
-                      </Paragraph>
+                      <Paragraph ellipsis style={{ margin: 0, fontSize: '13px' }}>{theatre.contact?.email}</Paragraph>
                     </Col>
                   </Row>
-
-                  <Button
-                    block
-                    icon={<EyeOutlined />}
-                    onClick={() => handleViewTheatre(theatre)}
-                    style={{ marginTop: '8px' }}
-                  >
+                  <Button block icon={<EyeOutlined />} onClick={() => handleViewTheatre(theatre)} style={{ marginTop: '8px' }}>
                     View Details
                   </Button>
                 </Space>
@@ -346,35 +378,61 @@ function PartnerProfile() {
     </Space>
   );
 
+  const SettingsTab = () => (
+    <Row gutter={[16, 16]}>
+      <Col xs={24} md={12}>
+        <Card hoverable style={{ borderRadius: '12px', height: '100%' }} bodyStyle={{ padding: '24px' }}
+          onClick={() => setPasswordModalVisible(true)}>
+          <Space direction="vertical" size="middle">
+            <LockOutlined style={{ fontSize: '32px', color: '#667eea' }} />
+            <div>
+              <Title level={4} style={{ margin: 0 }}>Change Password</Title>
+              <Text type="secondary">Update your account password</Text>
+            </div>
+          </Space>
+        </Card>
+      </Col>
+      <Col xs={24} md={12}>
+        <Card hoverable style={{ borderRadius: '12px', height: '100%' }} bodyStyle={{ padding: '24px' }}
+          onClick={() => message.info('Theatre management features coming soon!')}>
+          <Space direction="vertical" size="middle">
+            <ShopOutlined style={{ fontSize: '32px', color: '#667eea' }} />
+            <div>
+              <Title level={4} style={{ margin: 0 }}>Manage Theatres</Title>
+              <Text type="secondary">Add or edit your theatres</Text>
+            </div>
+          </Space>
+        </Card>
+      </Col>
+    </Row>
+  );
+
   return (
-    <>
+    <Layout style={{ minHeight: '100vh', background: '#f5f5f5' }}>
+      <Navbar />
       <Content style={{ marginTop: 64, padding: isMobile ? '16px' : '24px', maxWidth: '1400px', margin: '64px auto 0', width: '100%' }}>
         <ProfileHeader />
 
         <Card style={{ borderRadius: '16px' }}>
-          <Tabs defaultActiveKey="theatres" size={isMobile ? 'small' : 'large'}>
+          <Tabs defaultActiveKey="dashboard" size={isMobile ? 'small' : 'large'}>
+            <Tabs.TabPane tab={<span><DashboardOutlined />{!isMobile && ' Dashboard'}</span>} key="dashboard">
+              <DashboardTab />
+            </Tabs.TabPane>
             <Tabs.TabPane tab={<span><ShopOutlined />{!isMobile && ' My Theatres'}</span>} key="theatres">
               <TheatresTab />
+            </Tabs.TabPane>
+            <Tabs.TabPane tab={<span><LockOutlined />{!isMobile && ' Settings'}</span>} key="settings">
+              <SettingsTab />
             </Tabs.TabPane>
           </Tabs>
         </Card>
 
-        {/* Add Theatre Modal */}
-        <AddTheatreModal
-          visible={addTheatreModal}
-          onCancel={() => setAddTheatreModal(false)}
-          onSuccess={() => fetchTheatres(user.email)}
-          userEmail={user.email}
-        />
+        <AddTheatreModal visible={addTheatreModal} onCancel={() => setAddTheatreModal(false)}
+          onSuccess={() => fetchTheatres(user.email)} userEmail={user.email} />
 
-        {/* View Theatre Modal */}
-        <Modal
-          title="Theatre Details"
-          open={viewTheatreModal}
+        <Modal title="Theatre Details" open={viewTheatreModal}
           onCancel={() => { setViewTheatreModal(false); setSelectedTheatre(null); }}
-          footer={null}
-          width={isMobile ? '95%' : 700}
-        >
+          footer={null} width={isMobile ? '95%' : 700}>
           {selectedTheatre && (
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
               <Card style={{ background: '#f5f5f5' }}>
@@ -383,7 +441,6 @@ function PartnerProfile() {
                   {selectedTheatre.status.toUpperCase()}
                 </Tag>
               </Card>
-
               <Descriptions bordered column={1}>
                 <Descriptions.Item label="Address">{selectedTheatre.location?.address || 'N/A'}</Descriptions.Item>
                 <Descriptions.Item label="City">{selectedTheatre.location?.city || 'N/A'}</Descriptions.Item>
@@ -393,7 +450,6 @@ function PartnerProfile() {
                 <Descriptions.Item label="Contact Phone">{selectedTheatre.contact?.phone || 'N/A'}</Descriptions.Item>
                 <Descriptions.Item label="Owner">{selectedTheatre.contact?.owner || 'N/A'}</Descriptions.Item>
               </Descriptions>
-
               <div>
                 <Text strong>Facilities:</Text>
                 <Space wrap style={{ marginTop: '8px' }}>
@@ -402,7 +458,6 @@ function PartnerProfile() {
                   {selectedTheatre.facilities?.wheelchairAccess && <Tag color="blue">Wheelchair Access</Tag>}
                 </Space>
               </div>
-
               {selectedTheatre.rejectionReason && (
                 <Card style={{ background: '#fff1f0', border: '1px solid #ffccc7' }}>
                   <Text strong style={{ color: '#cf1322' }}>Rejection Reason:</Text>
@@ -413,8 +468,53 @@ function PartnerProfile() {
           )}
         </Modal>
 
+        <Modal title="Edit Profile" open={editModalVisible} onCancel={() => setEditModalVisible(false)} footer={null} width={isMobile ? '95%' : 600}>
+          <Form form={form} layout="vertical" onFinish={handleUpdateProfile} style={{ marginTop: '24px' }}>
+            <Form.Item name="name" label="Full Name" rules={[{ required: true, message: 'Please enter your name' }]}>
+              <Input size="large" prefix={<UserOutlined />} />
+            </Form.Item>
+            <Form.Item name="email" label="Email" rules={[{ required: true }, { type: 'email' }]}>
+              <Input size="large" prefix={<MailOutlined />} />
+            </Form.Item>
+            <Form.Item name="phone" label="Phone Number">
+              <Input size="large" prefix={<PhoneOutlined />} />
+            </Form.Item>
+            <Form.Item>
+              <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+                <Button onClick={() => setEditModalVisible(false)}>Cancel</Button>
+                <Button type="primary" htmlType="submit"
+                  style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none' }}>
+                  Save Changes
+                </Button>
+              </Space>
+            </Form.Item>
+          </Form>
+        </Modal>
+
+        <Modal title="Change Password" open={passwordModalVisible} onCancel={() => setPasswordModalVisible(false)} footer={null} width={isMobile ? '95%' : 500}>
+          <Form form={passwordForm} layout="vertical" onFinish={handleChangePassword} style={{ marginTop: '24px' }}>
+            <Form.Item name="currentPassword" label="Current Password" rules={[{ required: true }]}>
+              <Input.Password size="large" prefix={<LockOutlined />} />
+            </Form.Item>
+            <Form.Item name="newPassword" label="New Password" rules={[{ required: true }, { min: 6 }]}>
+              <Input.Password size="large" prefix={<LockOutlined />} />
+            </Form.Item>
+            <Form.Item name="confirmPassword" label="Confirm New Password" rules={[{ required: true }]}>
+              <Input.Password size="large" prefix={<LockOutlined />} />
+            </Form.Item>
+            <Form.Item>
+              <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+                <Button onClick={() => setPasswordModalVisible(false)}>Cancel</Button>
+                <Button type="primary" htmlType="submit"
+                  style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none' }}>
+                  Change Password
+                </Button>
+              </Space>
+            </Form.Item>
+          </Form>
+        </Modal>
       </Content>
-    </>
+    </Layout>
   );
 }
 

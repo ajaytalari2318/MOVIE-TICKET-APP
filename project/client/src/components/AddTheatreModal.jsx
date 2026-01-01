@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Form, Input, InputNumber, Switch, Row, Col, Button, Space, message } from 'antd';
 import { ShopOutlined, EnvironmentOutlined, PhoneOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
-import { addTheatre } from '../calls/theatreCalls';
-
 
 const AddTheatreModal = ({ visible, onCancel, onSuccess, userEmail }) => {
   const [form] = Form.useForm();
@@ -34,9 +32,15 @@ const AddTheatreModal = ({ visible, onCancel, onSuccess, userEmail }) => {
         status: 'pending'
       };
 
-      
-const data = await addTheatre(theatreData);
+      const response = await fetch('https://bookmyshow-zklm.onrender.com/api/theatre/addTheatre', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(theatreData)
+      });
 
+      const data = await response.json();
 
       if (data.success) {
         message.success('Theatre request submitted successfully! Waiting for admin approval.');
