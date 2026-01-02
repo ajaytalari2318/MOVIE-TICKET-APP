@@ -10,6 +10,7 @@ import {
 } from '@ant-design/icons';
 import Navbar from './Navbar';
 import dayjs from 'dayjs';
+import SeatSelection from './SeatSelection';
 
 const { Content } = Layout;
 const { Title, Text, Paragraph } = Typography;
@@ -126,9 +127,61 @@ function Payment() {
     }
   ];
 
+ const [timeLeft, setTimeLeft] = useState(9 *60); // 9 minutes
+const [hasExpired, setHasExpired] = useState(false);
+
+useEffect(() => {
+  const timer = setInterval(() => {
+    setTimeLeft(prev => {
+      if (prev <= 1) {
+        clearInterval(timer);
+
+        if (!hasExpired) {   
+          setHasExpired(true);
+          Modal.warning({
+            title: 'Payment Time Expired ⏳',
+            content: 'Your 9-minute payment window has ended. Please reselect seats.',
+            onOk: () => {
+              navigate('/seat-selection', {
+                state: { theatre, show, movie, date }
+              });
+            }
+          });
+        }
+
+        return 0;
+      }
+      return prev - 1;
+    });
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, [hasExpired, navigate, theatre, show, movie, date]);
+
+
+
+
   return (
     <Layout style={{ minHeight: '100vh', background: '#f5f5f5' }}>
       <Navbar />
+      {/* Countdown Timer Bar */}
+<div
+  style={{
+    background: '#fffbe6',
+    padding: '12px 20px',
+    textAlign: 'center',
+    borderBottom: '1px solid #ffe58f',
+    position: 'sticky',
+    top: 64, // below Navbar height
+    zIndex: 1000
+  }}
+>
+  <Text strong style={{ fontSize: '16px', color: '#fa541c' }}>
+    Payment Time Left: {Math.floor(timeLeft / 60)}:
+    {String(timeLeft % 60).padStart(2, '0')}
+  </Text>
+</div>
+
       <Content style={{ marginTop: 64, padding: isMobile ? '16px' : '20px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <Button
