@@ -55,7 +55,7 @@ const rowLetter = String.fromCharCode(65 + offset + row);
     const isBooked = Math.random() < 0.15;
 
           
-           rowSeats.push({
+      rowSeats.push({
       id: seatNumber,
       number: seatNumber,
       status: isBooked ? 'booked' : 'available',
