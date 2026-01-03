@@ -4,7 +4,7 @@ const LoadingScreen = ({ onComplete }) => {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    // Hide loading screen after 3.5 seconds
+    // Hide loading screen after 1.2 seconds
     const timer = setTimeout(() => {
       setIsVisible(false);
       if (onComplete) onComplete();
@@ -16,19 +16,21 @@ const LoadingScreen = ({ onComplete }) => {
   if (!isVisible) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100vh',
-      background: '#000',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 10000,
-      animation: 'fadeOut 0.8s ease-out 2.8s forwards'
-    }}>
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100vh',
+        background: '#000',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 10000,
+        animation: 'fadeOut 0.8s ease-out 2.8s forwards',
+      }}
+    >
       <style>{`
         @keyframes fadeOut {
           to {
@@ -38,15 +40,9 @@ const LoadingScreen = ({ onComplete }) => {
         }
 
         @keyframes ribbonReveal {
-          0% {
-            clip-path: inset(0 100% 0 0);
-          }
-          50% {
-            clip-path: inset(0 0 0 0);
-          }
-          100% {
-            clip-path: inset(0 0 0 0);
-          }
+          0% { clip-path: inset(0 100% 0 0); }
+          50% { clip-path: inset(0 0 0 0); }
+          100% { clip-path: inset(0 0 0 0); }
         }
 
         @keyframes streaks {
@@ -65,13 +61,13 @@ const LoadingScreen = ({ onComplete }) => {
         }
 
         .logo-text {
-          font-size: clamp(60px, 10vw, 120px);
+          font-size: clamp(40px, 8vw, 120px);
           font-weight: 900;
           color: #e50914; /* Netflix red */
-          
           position: relative;
           user-select: none;
           animation: ribbonReveal 1.5s ease-out forwards;
+          text-align: center;
         }
 
         .streak {
@@ -79,9 +75,29 @@ const LoadingScreen = ({ onComplete }) => {
           top: 50%;
           left: 0;
           width: 100%;
-          height: 8px;
+          height: 6px;
           background: linear-gradient(90deg, transparent, #e50914, transparent);
           animation: streaks 2s ease-in-out infinite;
+        }
+
+        /* 📱 Mobile adjustments */
+        @media (max-width: 600px) {
+          .logo-text {
+            font-size: clamp(28px, 12vw, 60px);
+          }
+          .streak {
+            height: 4px;
+          }
+        }
+
+        /* 📱 Extra small devices */
+        @media (max-width: 400px) {
+          .logo-text {
+            font-size: clamp(22px, 14vw, 50px);
+          }
+          .streak {
+            height: 3px;
+          }
         }
       `}</style>
 
